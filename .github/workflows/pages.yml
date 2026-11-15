@@ -15,6 +15,8 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  pages: write
+  id-token: write
 concurrency:
   group: pages
   cancel-in-progress: false
@@ -24,6 +26,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
       - uses: actions/setup-node@v7
         with:
           node-version: 24
@@ -39,6 +43,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       pages: write
       id-token: write
     environment:
@@ -48,3 +53,4 @@ jobs:
       - name: Publish static application
         id: deployment
         uses: actions/deploy-pages@v4
+
