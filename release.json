@@ -1,11 +1,11 @@
 {
-  "version": "0.3.1",
+  "version": "0.4.0",
   "package": "ch.bersier.dualbedsync",
-  "versionCode": 301,
+  "versionCode": 400,
   "minimumAndroid": "7.0",
-  "sourceCommit": "43ccf7d0add33303115d7fb82ea8d24ac1fa2b4d",
-  "sha256": "7c5b8677703554420aa9eb442904e8ca54619a550a7f9f543a56548ca5342b2d",
-  "bytes": 3372016,
+  "sourceCommit": "691b9bae857d613c10a20560ea8f0f9c98560e4c",
+  "sha256": "54d1c72643499aa14faaee60d6f967b37da47f8adc3a92f21bf736ff7e7feb30",
+  "bytes": 3376194,
   "certificateSha256": "17dea637c04e865a19f0448842f6588c3669e21430fd12c9a818b70f5fe203e0",
   "hardwareValidated": false,
   "previousVersionUserFeedback": "L’utilisateur confirme le bon fonctionnement de la version Android 0.3.0."
