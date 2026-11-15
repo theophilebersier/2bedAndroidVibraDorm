@@ -23,14 +23,14 @@ for (const android of [false, true]) {
     }, android);
     await settings(); await expect(toggle).not.toBeChecked(); await toggle.check(); await close();
     await expect(page.locator('.light-panel')).toBeVisible();
-    await expect.poll(stored).toEqual({ level: 102, minutes: 60, showLight: true });
+    await expect.poll(stored).toMatchObject({ level: 102, minutes: 60, showLight: true });
     await page.reload();
     await expect(page.locator('#status-right')).toHaveText('Connecté');
     await expect(page.locator('.light-panel')).toBeVisible();
     await expect(page.locator('#brightness')).toHaveValue('40');
     await expect(page.locator('#light-timer')).toHaveValue('60');
     await settings(); await expect(toggle).toBeChecked(); await toggle.uncheck(); await close();
-    await expect.poll(stored).toEqual({ level: 102, minutes: 60, showLight: false });
+    await expect.poll(stored).toMatchObject({ level: 102, minutes: 60, showLight: false });
     await page.reload();
     await expect(page.locator('.light-panel')).toBeHidden();
     await expect(page.locator('#status-left')).toHaveText('Connecté');

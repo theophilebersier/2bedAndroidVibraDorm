@@ -1,11 +1,11 @@
-# Dual Bed Sync pour Android — version 0.3.1
+# Dual Bed Sync pour Android — version 0.4.0
 
 **[Télécharger l’APK signé](https://github.com/theophilebersier/2bedAndroidVibraDorm/raw/refs/heads/apk/DualBedSync.apk)** · Android 7 ou plus récent.
 
 ## Installer et retrouver les lits
 
 1. Sur le téléphone, télécharger le fichier APK et l’ouvrir pour installer **Dual Bed Sync**. Android peut demander d’autoriser l’installation depuis le navigateur utilisé.
-2. Ouvrir cette nouvelle application. L’en-tête indique **ANDROID · v0.3.1**. Le raccourci web déjà installé est une autre application et peut être retiré de l’écran d’accueil.
+2. Ouvrir cette nouvelle application. L’en-tête indique **ANDROID · v0.4.0**. Le raccourci web déjà installé est une autre application et peut être retiré de l’écran d’accueil.
 3. Autoriser **Appareils à proximité**, activer le Bluetooth, puis choisir une fois le sommier gauche et le droit dans la configuration. Sur Android 7 à 11, le système demande aussi l’autorisation de localisation nécessaire au scan BLE ; aucune position n’est calculée ni transmise.
 4. Fermer puis rouvrir l’application près des lits. Elle tente de reconnecter les adresses mémorisées, sans nouvelle sélection et sans reprendre de mouvement. Vérifier ce fonctionnement sur le téléphone et les récepteurs réels.
 
@@ -20,6 +20,18 @@ Le diagnostic peut être enregistré ou partagé via la feuille Android. Il excl
 L’éclairage est masqué par défaut. Ouvrir la roue dentée, puis cocher **Afficher les commandes d’éclairage** dans **Affichage** pour le retrouver. Décocher pour le masquer. Ce choix est conservé dans Android et ne lance aucune commande Bluetooth.
 
 Pour mettre à jour, installer l’APK par-dessus l’application existante, sans la désinstaller : les associations des sommiers et les réglages sont conservés.
+
+## Personnaliser la télécommande
+
+Ouvrir la roue dentée **Vos paramètres**. Les changements sont enregistrés sur le téléphone ; un message confirme leur sauvegarde.
+
+- **Affichage → Thème** : Clair, Sombre (mode nuit) ou Automatique. Automatique suit les changements de thème du téléphone. Les icônes des barres Android suivent le thème de l’application.
+- **Interface simplifiée · grands boutons** : agrandit les commandes et masque l’illustration, tout en conservant dossier, jambes, tout monter/descendre, STOP et les états de connexion.
+- **Personnalisation → Nom du côté gauche/droit** : noms locaux de 32 caractères maximum, sans modification des noms Bluetooth ni des associations.
+- **Sélection à l’ouverture** : gauche, droite ou les deux. Elle s’applique à la prochaine ouverture complète ; un retour au premier plan conserve la sélection en cours. Aucun mouvement n’est lancé.
+- **Retour tactile des commandes** : activé par défaut, désactivable. Une impulsion légère au début d’un mouvement et une impulsion à sa fin. La vibration n’est pas une confirmation de réception par le lit. L’absence ou la panne du vibreur n’interrompt pas STOP. Android peut supprimer les vibrations selon les réglages du système et le matériel.
+
+Les anciens choix d’éclairage et les sommiers associés sont conservés. Les nouveaux réglages par défaut sont : thème automatique, noms standards, les deux sommiers sélectionnés, interface complète, retour tactile activé. Les sauvegardes successives sont exécutées dans l’ordre, y compris lors de la saisie rapide d’un nom.
 
 ## Pourquoi l’APK
 

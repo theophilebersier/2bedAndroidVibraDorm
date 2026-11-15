@@ -1,0 +1,49 @@
+.setting-field{display:flex;flex-direction:column;gap:9px;margin:12px 0 18px;font-size:12px;line-height:1.5}
+.setting-field input,.setting-field select{width:100%;min-width:0;min-height:46px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:var(--paper);color:inherit}
+#preferences-status{font-size:11px;color:var(--muted);min-height:20px}
+.connection strong,.setup-bed strong,#bed-title,.bed-markers span,.target-switch button span{overflow-wrap:anywhere;min-width:0}
+.connection>div{min-width:0}.setup-bed>div:first-child{min-width:0}.bed-markers{gap:16px;padding:0 24px}.bed-markers span{max-width:45%;text-align:center}.target-switch button{min-width:0}.target-switch button span{line-height:1.4}
+:root[data-theme=light]{color-scheme:light}
+:root[data-theme=dark]{color-scheme:dark;color:#e3e9e0;background:#101913;--green:#a3c9ae;--muted:#b2c0b4;--line:#415348;--paper:#1c2921;--soft:#26372c;--error:#efad9c}
+[data-theme=dark] .topbar,[data-theme=dark] footer{border-color:var(--line)}
+[data-theme=dark] .bed-panel{background:#18251c}
+[data-theme=dark] .bed-panel,[data-theme=dark] .remote-panel,[data-theme=dark] .light-panel,[data-theme=dark] dialog,[data-theme=dark] .setup-bed{border-color:var(--line)}
+[data-theme=dark] .eyebrow,[data-theme=dark] .heading-note,[data-theme=dark] .hold-hint,[data-theme=dark] .selection-hint,[data-theme=dark] .zone-label small,[data-theme=dark] .status-message,[data-theme=dark] .connection small,[data-theme=dark] .help-strip p,[data-theme=dark] .light-intro p:last-child,[data-theme=dark] .light-settings label,[data-theme=dark] .bed-markers span,[data-theme=dark] footer,[data-theme=dark] dialog p{color:var(--muted)}
+[data-theme=dark] .text-button,[data-theme=dark] footer button,[data-theme=dark] footer a,[data-theme=dark] .light-settings output,[data-theme=dark] .timer-label select,[data-theme=dark] #about-dialog a{color:#c3dbc6}
+[data-theme=dark] .brand-icon{border-color:#698572}
+[data-theme=dark] .icon-button,[data-theme=dark] .small-symbol,[data-theme=dark] .close-button,[data-theme=dark] .mode-switch,[data-theme=dark] .secondary-button,[data-theme=dark] .flat-button,[data-theme=dark] .direction-buttons button{background:#293c30;color:#dce9dc;border-color:var(--line)}
+[data-theme=dark] .target-switch{background:#26382c;border-color:var(--line)}
+[data-theme=dark] .target-switch button,[data-theme=dark] .mode-switch button{color:#bdccbc}
+[data-theme=dark] .target-switch button[aria-pressed=true],[data-theme=dark] .mode-switch button[aria-pressed=true],[data-theme=dark] .primary-button,[data-theme=dark] .direction-buttons .holding,[data-theme=dark] .flat-button.holding{background:#a3c9ae;color:#14251b;box-shadow:none}
+[data-theme=dark] .pill{background:#2e3d2e;color:#cad8bf}
+[data-theme=dark] .pill.ready,[data-theme=dark] .demo-banner{background:#29462f;color:#d4e8ca;border-color:#647e5e}
+[data-theme=dark] .stop-button{background:#51332d;color:#f3d0c3}
+[data-theme=dark] .light-icon{background:#493f27;color:#ead398}
+[data-theme=dark] .motion-row,[data-theme=dark] .connection{border-color:var(--line)}
+[data-theme=dark] .timer-label select{border-color:var(--line)}
+[data-theme=dark] .status-message.fault{color:var(--error)}
+[data-theme=dark] #setup-status{color:#edc39b}
+[data-theme=dark] .bed-markers .selected{color:#d1e5cd}
+[data-theme=dark] .zone-drawing{border-color:#b3ccae}
+[data-theme=dark] .zone-drawing:before,[data-theme=dark] .zone-drawing:after{background:#b3ccae}
+[data-theme=dark] dialog::backdrop{background:#0009}
+[data-theme=dark] dialog{color:#e3e9e0}
+.light-intro,.light-intro>div{min-width:0}#light-state{overflow-wrap:anywhere}
+#app[data-simple=true] .page-heading,#app[data-simple=true] .bed-stage,#app[data-simple=true] .zone-drawing,#app[data-simple=true] .zone-label small,#app[data-simple=true] .small-symbol,#app[data-simple=true] .panel-heading .eyebrow{display:none}
+#app[data-simple=true] .workspace{grid-template-columns:minmax(0,1fr);max-width:720px;margin:auto}
+#app[data-simple=true] .bed-panel,#app[data-simple=true] .remote-panel{padding:22px}
+#app[data-simple=true] .target-switch{margin-top:18px;grid-template-columns:repeat(3,minmax(0,1fr))}
+#app[data-simple=true] .target-switch button{min-height:58px;font-size:16px}
+#app[data-simple=true] .connections{margin-top:12px}
+#app[data-simple=true] .hold-hint{font-size:14px}
+#app[data-simple=true] .zone-label strong{font-size:18px}
+#app[data-simple=true] .direction-buttons button{width:clamp(62px,18vw,84px);height:76px}
+#app[data-simple=true] .direction-buttons svg{width:28px;height:28px}
+#app[data-simple=true] .flat-button{min-height:80px}
+#app[data-simple=true] .flat-button>span{font-size:17px}
+#app[data-simple=true] .flat-button small{font-size:12px}
+#app[data-simple=true] .stop-button{min-height:66px;font-size:15px}
+#app[data-simple=true] .status-message{font-size:12px}
+#app[data-simple=true] .light-panel{grid-column:auto;grid-template-columns:1fr;gap:22px}
+#app[data-simple=true] .light-actions{grid-column:auto;display:flex;flex-wrap:wrap;flex-direction:row}
+@media(max-width:360px){#app[data-simple=true] .bed-panel,#app[data-simple=true] .remote-panel{padding:16px}#app[data-simple=true] .direction-buttons{gap:8px}#app[data-simple=true] .zone-label strong{font-size:16px}#app[data-simple=true] .direction-buttons button{width:60px}}

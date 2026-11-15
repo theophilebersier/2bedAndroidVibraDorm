@@ -12,6 +12,8 @@ Les prescriptions du document original sont des exigences à examiner. Les affir
 
 Mise à jour : la version Android native 0.3.0 a été installée et son fonctionnement confirmé par l’utilisateur. La version 0.3.1 masque l’éclairage par défaut et ajoute une préférence persistante pour le réafficher. La version web reste disponible ; Android natif est désormais la solution retenue pour retrouver les sommiers sans sélecteur.
 
+Mise à jour 0.4.0 : thème clair/sombre/automatique, noms locaux, côté préféré au démarrage, interface simplifiée et retour tactile natif optionnel. Le pilote BLE et les paquets moteur restent identiques ; aucun déplacement automatique ni position mémorisée n’est ajouté.
+
 ## 2. Choix techniques de départ
 
 | Sujet | Choix proposé | Condition de validation |

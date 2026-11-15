@@ -1,6 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 const packages = ['@capacitor/core', '@capacitor/android', '@capacitor/app', '@capacitor/preferences',
-  '@capacitor/filesystem', '@capacitor/share', '@capacitor/synapse', '@capacitor-community/bluetooth-le'];
+  '@capacitor/filesystem', '@capacitor/share', '@capacitor/haptics', '@capacitor/synapse', '@capacitor-community/bluetooth-le'];
 let text = 'Dual Bed Sync — runtime component licences\n\n';
 for (const name of packages) {
   const directory = `node_modules/${name}`;

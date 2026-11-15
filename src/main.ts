@@ -1,10 +1,11 @@
 import './style.css';
+import './personalization.css';
 import { BedController } from './control/controller';
 import { connectDevice, connectionSupport, chooseDevice } from './transport/connection';
 import { SimulatedTransport } from './transport/simulated';
 import { SIDES, sideLabel, type BedTransport, type DeviceIdentity, type Mode, type Side, type Target } from './transport/types';
 import type { Movement } from './protocol/vmat';
-import { readPreferences, savePreferences } from './storage/preferences';
+import { cleanName, readPreferences, savePreferences, type Theme } from './storage/preferences';
 import { bedIllustration } from './ui/bed';
 import { icon } from './ui/icons';
 import { readDevices, saveDevices } from './storage/devices';
@@ -13,9 +14,13 @@ import { VERSION } from './version';
 import { isAndroid } from './platform';
 import { App } from '@capacitor/app';
 import { exportDiagnostic } from './ui/diagnostic';
+import { applyTheme, systemTheme } from './ui/appearance';
+import { feedback } from './ui/haptics';
 
 const controller = new BedController();
 let preferences = readPreferences();
+applyTheme(preferences.theme);
+systemTheme.addEventListener('change', () => applyTheme(preferences.theme));
 const devices: Partial<Record<Side, DeviceIdentity>> = {};
 const remembered = readDevices();
 const simulations: Partial<Record<Side, SimulatedTransport>> = {};
@@ -52,8 +57,8 @@ app.innerHTML = `
       <section class="bed-panel" aria-labelledby="bed-title">
         <div class="panel-heading"><div><p class="eyebrow">VOTRE SÉLECTION</p><h2 id="bed-title">Les deux sommiers</h2></div><span id="selection-state" class="pill">À connecter</span></div>
         <div class="bed-stage">${bedIllustration}<div class="bed-markers"><span id="marker-left">GAUCHE</span><span id="marker-right">DROITE</span></div></div>
-        <div class="target-switch" role="group" aria-label="Choisir les sommiers"><button data-target="left" aria-pressed="false">Gauche</button><button data-target="both" aria-pressed="true">Les deux ${icon('link')}</button><button data-target="right" aria-pressed="false">Droite</button></div>
-        <div class="connections">${SIDES.map(side => `<div class="connection"><div><span class="status-dot" id="dot-${side}"></span><strong>Lit ${sideLabel(side)}</strong><small id="status-${side}">Non connecté</small></div><button class="text-button" data-setup-side="${side}" aria-label="Configurer le lit ${sideLabel(side)}">Configurer ${icon('arrow')}</button></div>`).join('')}</div>
+        <div class="target-switch" role="group" aria-label="Choisir les sommiers"><button data-target="left" aria-pressed="false"><span>Gauche</span></button><button data-target="both" aria-pressed="true">Les deux ${icon('link')}</button><button data-target="right" aria-pressed="false"><span>Droite</span></button></div>
+        <div class="connections">${SIDES.map(side => `<div class="connection"><div><span class="status-dot" id="dot-${side}"></span><strong id="name-${side}">Lit ${sideLabel(side)}</strong><small id="status-${side}">Non connecté</small></div><button class="text-button" data-setup-side="${side}" aria-label="Configurer le lit ${sideLabel(side)}">Configurer ${icon('arrow')}</button></div>`).join('')}</div>
         <p class="selection-hint" id="selection-hint">Le mode combiné nécessite deux sommiers connectés.</p>
       </section>
       <section class="remote-panel" aria-labelledby="remote-title"><div class="panel-heading"><div><p class="eyebrow">PRENEZ VOTRE TEMPS</p><h2 id="remote-title">Votre télécommande</h2></div><span class="small-symbol">${icon('bed')}</span></div>
@@ -70,12 +75,23 @@ app.innerHTML = `
     <div class="help-strip"><p>${icon('link')} <span>La commande combinée ne mesure pas l’alignement des sommiers.</span></p><button id="try-demo" class="text-button">Essayer sans connecter de lit ${icon('arrow')}</button></div>
   </main>
   <footer><span>Un peu plus de calme, du bout des doigts.</span><div><a id="apk-download" href="https://github.com/theophilebersier/2bedAndroidVibraDorm/raw/refs/heads/apk/DualBedSync.apk" ${isAndroid() ? 'hidden' : ''}>Installer sur Android</a><button id="install" hidden>Ajouter le raccourci web</button><button id="export">Diagnostic</button><button id="about">À propos</button><span>v${VERSION}</span></div></footer>
-  <dialog id="setup-dialog" aria-labelledby="setup-title"><div class="dialog-heading"><div><p class="eyebrow">CONNEXIONS</p><h2 id="setup-title">Vos sommiers</h2></div><button class="close-button" data-close="setup-dialog" aria-label="Fermer la configuration">×</button></div><p>Choisissez chaque sommier séparément et attribuez-lui son côté, vu depuis le pied du lit.</p><div class="mode-switch" role="group" aria-label="Mode de connexion"><button data-mode="real" aria-pressed="true">Bluetooth réel</button><button data-mode="demo" aria-pressed="false">Simulation</button></div><p class="support-message" id="support-message"></p><div class="setup-beds">${SIDES.map(side => `<article class="setup-bed"><div><strong>Lit ${sideLabel(side)}</strong><span id="device-${side}">Aucun appareil associé</span><small id="details-${side}"></small></div><div class="setup-bed-actions"><button class="primary-button" data-connect="${side}">Choisir un sommier</button><button class="text-button" data-change="${side}" hidden>Changer d’appareil</button><button class="text-button demo-fault" data-fault="${side}" hidden>Simuler une perte de liaison</button></div></article>`).join('')}</div><p id="setup-status" role="status"></p><fieldset class="display-settings"><legend>Affichage</legend><label class="setting-toggle" for="show-light"><input id="show-light" type="checkbox" aria-describedby="show-light-help"><span>Afficher les commandes d’éclairage</span></label><p id="show-light-help">À activer si un éclairage est installé sous le lit. Votre choix est conservé à la fermeture de l’application.</p></fieldset><p class="setup-footnote">Profil prévu : V-MAT Basic CBI. Les changements restent à vérifier sur vos moteurs. Aucune commande de mouvement n’est envoyée lors de la connexion.</p><button class="secondary-button dialog-done" data-close="setup-dialog">Revenir à la télécommande</button></dialog>
+  <dialog id="setup-dialog" aria-labelledby="setup-title"><div class="dialog-heading"><div><p class="eyebrow">CONNEXIONS</p><h2 id="setup-title">Vos paramètres</h2></div><button class="close-button" data-close="setup-dialog" aria-label="Fermer la configuration">×</button></div><p>Choisissez chaque sommier séparément et attribuez-lui son côté, vu depuis le pied du lit.</p><div class="mode-switch" role="group" aria-label="Mode de connexion"><button data-mode="real" aria-pressed="true">Bluetooth réel</button><button data-mode="demo" aria-pressed="false">Simulation</button></div><p class="support-message" id="support-message"></p><div class="setup-beds">${SIDES.map(side => `<article class="setup-bed"><div><strong id="setup-name-${side}">Lit ${sideLabel(side)}</strong><span id="device-${side}">Aucun appareil associé</span><small id="details-${side}"></small></div><div class="setup-bed-actions"><button class="primary-button" data-connect="${side}">Choisir un sommier</button><button class="text-button" data-change="${side}" hidden>Changer d’appareil</button><button class="text-button demo-fault" data-fault="${side}" hidden>Simuler une perte de liaison</button></div></article>`).join('')}</div><p id="setup-status" role="status"></p><fieldset class="display-settings"><legend>Affichage</legend><div class="setting-field"><label for="theme">Thème</label><select id="theme"><option value="system">Automatique · selon le téléphone</option><option value="light">Clair</option><option value="dark">Sombre · mode nuit</option></select></div><label class="setting-toggle" for="simple-mode"><input id="simple-mode" type="checkbox" aria-describedby="simple-help"><span>Interface simplifiée · grands boutons</span></label><p id="simple-help">Masque l’illustration et agrandit les commandes. Tous les mouvements et le bouton STOP restent accessibles.</p><label class="setting-toggle" for="show-light"><input id="show-light" type="checkbox" aria-describedby="show-light-help"><span>Afficher les commandes d’éclairage</span></label><p id="show-light-help">À activer si un éclairage est installé sous le lit. Votre choix est conservé à la fermeture de l’application.</p></fieldset><fieldset class="display-settings"><legend>Personnalisation</legend><label class="setting-field" for="left-name">Nom du côté gauche<input id="left-name" type="text" maxlength="32" placeholder="Lit gauche" autocomplete="off" dir="auto"></label><label class="setting-field" for="right-name">Nom du côté droit<input id="right-name" type="text" maxlength="32" placeholder="Lit droit" autocomplete="off" dir="auto"></label><p>Les côtés sont vus depuis le pied du lit. Les noms restent dans cette application ; ils ne modifient pas les noms Bluetooth.</p><div class="setting-field"><label for="default-target">Sélection à l’ouverture</label><select id="default-target"><option value="both">Les deux sommiers</option><option value="left">Lit gauche</option><option value="right">Lit droit</option></select></div><p>Ce choix s’applique à la prochaine ouverture et ne déclenche aucun mouvement.</p><label class="setting-toggle" for="haptics"><input id="haptics" type="checkbox" aria-describedby="haptics-help"><span>Retour tactile des commandes</span></label><p id="haptics-help">Une brève vibration au début et à la fin d’une commande, si le téléphone le permet. Elle ne confirme pas la position ni l’arrêt physique du lit.</p></fieldset><p id="preferences-status" role="status" aria-live="polite"></p><p class="setup-footnote">Profil prévu : V-MAT Basic CBI. Les changements restent à vérifier sur vos moteurs. Aucune commande de mouvement n’est envoyée lors de la connexion.</p><button class="secondary-button dialog-done" data-close="setup-dialog">Revenir à la télécommande</button></dialog>
   <dialog id="about-dialog" aria-labelledby="about-title"><div class="dialog-heading"><h2 id="about-title">Dual Bed Sync</h2><button class="close-button" data-close="about-dialog" aria-label="Fermer à propos">×</button></div><p>Version de test ${VERSION} pour les sommiers Vibradorm V-MAT Basic CBI. Application indépendante, sans affiliation avec Vibradorm ou Tempur.</p><p>Gardez l’application au premier plan pendant les commandes. Le maintien est limité à dix secondes ; relâchez puis maintenez de nouveau pour poursuivre. Une liaison Bluetooth perdue ne permet pas de confirmer l’arrêt physique : gardez la télécommande du lit accessible.</p><p>Les commandes groupées ne mesurent ni la position ni l’alignement mécanique. Les changements restent à vérifier sur les lits réels.</p><p>Les sommiers et les réglages de lumière restent sur cet appareil. Sur Android, les sommiers mémorisés sont reconnectés à l’ouverture si le Bluetooth est activé et les lits sont à portée. Dans la version web, cette fonction dépend du navigateur. Aucun mouvement ne reprend. « Déconnecter » désactive la reconnexion automatique de ce côté jusqu’à votre prochaine connexion manuelle. Le diagnostic exporté exclut les identifiants et noms des appareils.</p><p>Protocole documenté par <a href="https://github.com/kristofferR/ha-adjustable-bed" target="_blank" rel="noopener noreferrer">kristofferR / ha-adjustable-bed</a>.</p></dialog>
 `;
 
 const $ = <T extends HTMLElement = HTMLElement>(selector: string): T => document.querySelector<T>(selector)!;
 const setup = $<HTMLDialogElement>('#setup-dialog');
+let preferenceRevision = 0;
+function persistPreferences(): void {
+  const revision = ++preferenceRevision;
+  $('#preferences-status').textContent = 'Enregistrement…';
+  void savePreferences(preferences).then(() => {
+    if (revision === preferenceRevision) $('#preferences-status').textContent = 'Réglages enregistrés.';
+  }).catch(() => {
+    if (revision === preferenceRevision) $('#preferences-status').textContent = 'Impossible d’enregistrer les réglages sur cet appareil.';
+  });
+}
+function bedName(side: Side): string { return preferences[side === 'left' ? 'leftName' : 'rightName'] || `Lit ${sideLabel(side)}`; }
 const buttons = (selector: string) => document.querySelectorAll<HTMLButtonElement>(selector);
 const errorMessage = (error: unknown) => error instanceof DOMException && error.name === 'NotFoundError' ? 'Sélection annulée ou appareil indisponible.' : error instanceof Error ? error.message : 'Une erreur est survenue.';
 function report(error: unknown): void { setupMessage = errorMessage(error); render(); }
@@ -85,7 +101,8 @@ function render(): void {
   const blocked = state.stopping || state.accessoryBusy || Boolean(pairing) || modeChanging || recovering;
   $('#demo-banner').hidden = state.mode !== 'demo';
   $('#try-demo').hidden = state.mode === 'demo';
-  $('#bed-title').textContent = state.target === 'both' ? 'Les deux sommiers' : `Le sommier ${sideLabel(state.target)}`;
+  $('#bed-title').textContent = state.target === 'both' ? 'Les deux sommiers' : preferences[state.target === 'left' ? 'leftName' : 'rightName'] || `Le sommier ${sideLabel(state.target)}`;
+  app.dataset.simple = String(preferences.simpleMode);
   $('#selection-state').textContent = state.active ? 'En mouvement' : state.ready ? state.mode === 'demo' ? 'Simulation prête' : 'Connecté' : 'À connecter';
   $('#selection-state').classList.toggle('ready', state.ready);
   app.dataset.target = state.target;
@@ -93,7 +110,7 @@ function render(): void {
   $('#movement-status').textContent = recovering ? setupMessage : state.message;
   $('#movement-status').classList.toggle('fault', state.fault);
   $('#selection-hint').textContent = state.target === 'both' ? 'Deux connexions sont nécessaires pour la commande combinée.' : 'Les commandes concernent uniquement le côté sélectionné.';
-  for (const button of buttons('[data-target]')) {
+  for (const button of buttons('button[data-target]')) {
     button.setAttribute('aria-pressed', String(button.dataset.target === state.target)); button.disabled = blocked;
   }
   for (const button of buttons('[data-movement]')) {
@@ -104,6 +121,13 @@ function render(): void {
   $<HTMLButtonElement>('#stop').disabled = !SIDES.some(side => state.beds[side].connected);
   for (const side of SIDES) {
     const bed = state.beds[side];
+    const name = bedName(side);
+    $(`#name-${side}`).textContent = name;
+    $(`#setup-name-${side}`).textContent = `${name} · côté ${sideLabel(side)}`;
+    $(`#marker-${side}`).textContent = preferences[side === 'left' ? 'leftName' : 'rightName'] || (side === 'left' ? 'GAUCHE' : 'DROITE');
+    $(`button[data-target="${side}"] span`).textContent = preferences[side === 'left' ? 'leftName' : 'rightName'] || (side === 'left' ? 'Gauche' : 'Droite');
+    $(`[data-setup-side="${side}"]`).setAttribute('aria-label', `Configurer ${name}, côté ${sideLabel(side)}`);
+    $<HTMLOptionElement>(`#default-target option[value="${side}"]`).textContent = `${name} · ${sideLabel(side)}`;
     $(`#status-${side}`).textContent = bed.connected ? state.mode === 'demo' ? 'Simulé · connecté' : 'Connecté' : 'Non connecté';
     $(`#dot-${side}`).classList.toggle('connected', bed.connected);
     $(`#marker-${side}`).classList.toggle('selected', state.target === 'both' || state.target === side);
@@ -128,7 +152,7 @@ function render(): void {
   $<HTMLInputElement>('#show-light').checked = preferences.showLight;
   $('#light-state').textContent = selected.map(side => {
     const light = state.beds[side].light;
-    return `${side === 'left' ? 'Gauche' : 'Droite'} : ${light ? light.level > 0 ? `${Math.round(light.level / 255 * 100)} %` : 'éteint' : 'inconnu'}`;
+    return `${preferences[side === 'left' ? 'leftName' : 'rightName'] || (side === 'left' ? 'Gauche' : 'Droite')} : ${light ? light.level > 0 ? `${Math.round(light.level / 255 * 100)} %` : 'éteint' : 'inconnu'}`;
   }).join(' · ');
   const observedOn = selected.some(side => (state.beds[side].light?.level ?? 0) > 0);
   $('.underlight').setAttribute('opacity', preferences.showLight && observedOn ? '.85' : '0');
@@ -174,7 +198,7 @@ document.addEventListener('visibilitychange', () => {
 window.addEventListener('pagehide', () => { reconnection.suspend(); releaseHold('pagehide'); });
 window.addEventListener('pageshow', () => reconnection.resume());
 $('#stop').addEventListener('click', () => releaseHold('explicit-stop'));
-for (const button of buttons('[data-target]')) button.addEventListener('click', () => {
+for (const button of buttons('button[data-target]')) button.addEventListener('click', () => {
   hold = null; void controller.setTarget(button.dataset.target as Target).catch(report);
 });
 
@@ -247,19 +271,47 @@ for (const button of buttons('[data-connect]')) button.addEventListener('click',
 for (const button of buttons('[data-change]')) button.addEventListener('click', () => { void connect(button.dataset.change as Side, true).catch(report); });
 for (const button of buttons('[data-fault]')) button.addEventListener('click', () => simulations[button.dataset.fault as Side]?.disconnect());
 
+$<HTMLSelectElement>('#theme').value = preferences.theme;
+$<HTMLInputElement>('#simple-mode').checked = preferences.simpleMode;
+$<HTMLInputElement>('#haptics').checked = preferences.haptics;
+$<HTMLSelectElement>('#default-target').value = preferences.defaultTarget;
+for (const side of SIDES) {
+  const input = $<HTMLInputElement>(`#${side}-name`);
+  input.value = preferences[side === 'left' ? 'leftName' : 'rightName'];
+  input.addEventListener('input', () => {
+    preferences[side === 'left' ? 'leftName' : 'rightName'] = cleanName(input.value);
+    persistPreferences(); render();
+  });
+}
+$('#theme').addEventListener('change', () => {
+  preferences.theme = $<HTMLSelectElement>('#theme').value as Theme;
+  applyTheme(preferences.theme); persistPreferences();
+});
+$('#simple-mode').addEventListener('change', () => {
+  preferences.simpleMode = $<HTMLInputElement>('#simple-mode').checked;
+  persistPreferences(); render();
+});
+$('#haptics').addEventListener('change', () => {
+  preferences.haptics = $<HTMLInputElement>('#haptics').checked;
+  persistPreferences();
+});
+$('#default-target').addEventListener('change', () => {
+  preferences.defaultTarget = $<HTMLSelectElement>('#default-target').value as Target;
+  persistPreferences();
+});
 $<HTMLInputElement>('#brightness').value = String(Math.round(preferences.level / 255 * 100));
 if (![0, 15, 30, 60, 120].includes(preferences.minutes)) preferences.minutes = 30;
 $<HTMLSelectElement>('#light-timer').value = String(preferences.minutes);
 function updatePreferences(): void {
   const percent = Number($<HTMLInputElement>('#brightness').value);
   preferences = { ...preferences, level: Math.max(1, Math.round(percent * 255 / 100)), minutes: Number($<HTMLSelectElement>('#light-timer').value) };
-  $('#brightness-value').textContent = `${percent} %`; savePreferences(preferences);
+  $('#brightness-value').textContent = `${percent} %`; persistPreferences();
 }
 $('#brightness').addEventListener('input', updatePreferences);
 $('#light-timer').addEventListener('change', updatePreferences);
 $('#show-light').addEventListener('change', () => {
   preferences.showLight = $<HTMLInputElement>('#show-light').checked;
-  savePreferences(preferences); render();
+  persistPreferences(); render();
 });
 for (const [selector, action] of [['#light-on', 'on'], ['#light-off', 'off'], ['#light-read', 'read']] as const) {
   $(selector).addEventListener('click', () => {
@@ -291,8 +343,11 @@ if (import.meta.env.PROD && !isAndroid() && 'serviceWorker' in navigator) {
   else window.addEventListener('load', registerWorker, { once: true });
 }
 const wasConnected = { left: false, right: false };
+let wasMoving = false;
 controller.subscribe(() => {
   const state = controller.snapshot();
+  const moving = Boolean(state.active);
+  if (moving !== wasMoving) { wasMoving = moving; feedback(preferences.haptics, !moving); }
   for (const side of SIDES) {
     if (wasConnected[side] && !state.beds[side].connected && remembered[side]?.automatic) reconnection.resume(1000);
     wasConnected[side] = state.beds[side].connected;
@@ -312,4 +367,5 @@ if (isAndroid()) {
     else await App.minimizeApp();
   }).catch(report);
 }
-updatePreferences(); render(); reconnection.resume();
+updatePreferences(); render();
+void controller.setTarget(preferences.defaultTarget).then(() => reconnection.resume()).catch(report);

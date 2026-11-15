@@ -7,6 +7,7 @@ export async function mockAndroid(page: Page): Promise<void> {
     const uuid = (value: string) => `0000${value}${suffix}`;
     const state = { requests: 0, connects: [] as string[], writes: [] as { id: string; byte: number }[],
       links: {} as Record<string, boolean>, light: '00 00 00', diagnostic: '', shared: false,
+      haptics: [] as string[], hapticsFail: false, hapticsPending: false, bars: [] as string[],
       emit: (plugin: string, event: string, value: unknown) => {
         for (const entry of callbacks.values()) if (entry.plugin === plugin && entry.event === event) entry.callback(value);
       } };
@@ -27,6 +28,8 @@ export async function mockAndroid(page: Page): Promise<void> {
         { name: 'App', methods: methods(['minimizeApp']) },
         { name: 'Filesystem', methods: methods(['writeFile']) },
         { name: 'Share', methods: methods(['share']) },
+        { name: 'Haptics', methods: methods(['impact']) },
+        { name: 'SystemBars', methods: methods(['setStyle']) },
         { name: 'BluetoothLe', methods: methods(['initialize', 'isEnabled', 'requestEnable', 'requestDevice', 'connect', 'disconnect', 'getServices', 'read', 'write']) },
       ],
       nativeCallback: (plugin: string, method: string, options: any, callback: (value: unknown) => void) => {
@@ -40,6 +43,13 @@ export async function mockAndroid(page: Page): Promise<void> {
           if (method === 'set') { sessionStorage.setItem(`native:${options.key}`, options.value); return; }
         }
         if (plugin === 'App' && method === 'minimizeApp') return;
+        if (plugin === 'SystemBars' && method === 'setStyle') { state.bars.push(options.style); return; }
+        if (plugin === 'Haptics' && method === 'impact') {
+          state.haptics.push(options.style);
+          if (state.hapticsFail) throw Error('Vibrator unavailable');
+          if (state.hapticsPending) return new Promise(() => {});
+          return;
+        }
         if (plugin === 'Filesystem' && method === 'writeFile') {
           state.diagnostic = options.data; return { uri: 'file:///cache/dual-bed-sync-diagnostic.json' };
         }
