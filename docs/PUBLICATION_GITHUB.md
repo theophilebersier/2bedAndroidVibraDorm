@@ -22,7 +22,7 @@ git push -u origin main
 
 Utiliser la connexion GitHub habituelle ; ne pas coller de jeton dans une URL ou un fichier du projet. Si un dépôt local est déjà initialisé, vérifier ses remotes et sa branche avant ces commandes.
 
-Le workflow `Checks` exécutera l’installation reproductible, le contrôle TypeScript, les tests unitaires, la construction et les tests navigateur. L’exécution distante de ce workflow n’a pas encore été vérifiée.
+Le workflow `Checks` exécute l’installation reproductible, le contrôle TypeScript, les tests unitaires, la construction et les tests navigateur. Sa [première exécution distante](https://github.com/theophilebersier/2bedAndroidVibraDorm/actions/runs/43698380292) a réussi sur Ubuntu avec Node.js 24.
 
 ## Héberger la PWA
 

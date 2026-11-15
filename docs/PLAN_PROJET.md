@@ -6,7 +6,7 @@ Date : 15 novembre 2026.
 
 Créer une télécommande mobile simple pour deux sommiers Vibradorm, puis préparer sa publication sur GitHub. La cible matérielle déclarée dans le cahier des charges est le V-Mat-Basic-RF-CBI-SMPS-bk-EU-RELAY-NAS, référence 0093005668.
 
-État au 15 novembre 2026 : version logicielle de test réalisée localement, avec protocole figé, pilote Web Bluetooth, simulation, interface, tests et préparation GitHub. La validation physique n’a pas été réalisée. En attendant l’accès aux lits, les étapes logicielles ont été construites avec des récepteurs simulés ; cela ne valide pas les critères matériels des étapes 1 à 5.
+État au 15 novembre 2026 : version logicielle de test réalisée et publiée dans `theophilebersier/2bedAndroidVibraDorm`, avec protocole figé, pilote Web Bluetooth, simulation, interface et tests. Les contrôles GitHub Actions ont réussi. La validation physique n’a pas été réalisée. En attendant l’accès aux lits, les étapes logicielles ont été construites avec des récepteurs simulés ; cela ne valide pas les critères matériels des étapes 1 à 5.
 
 Les prescriptions du document original sont des exigences à examiner. Les affirmations sur les connexions simultanées, les caractéristiques électriques et la synchronisation mécanique ne constituent pas des résultats d’essais.
 

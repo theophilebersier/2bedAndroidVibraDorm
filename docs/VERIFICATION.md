@@ -17,6 +17,9 @@ Réalisées le 15 novembre 2026 sur Windows, avec Node.js 26.13.0 et Chrome inst
 | Débordement horizontal | Aucun dans les captures et la vérification à 320 px |
 | Installation depuis une archive propre | `npm ci` et construction réussis à partir du fichier de verrouillage |
 | Document original dans l’archive Git | Octets identiques à la source fournie |
+| GitHub Actions, Ubuntu et Node.js 24 | Installation, contrôle, construction et tests navigateur réussis |
+
+Les sources sont publiées dans [theophilebersier/2bedAndroidVibraDorm](https://github.com/theophilebersier/2bedAndroidVibraDorm). L’exécution distante [Checks du commit c79656f](https://github.com/theophilebersier/2bedAndroidVibraDorm/actions/runs/43698380292) s’est terminée avec succès : `npm ci`, `npm run check`, installation de Chromium et `npm run test:e2e`. Le déploiement GitHub Pages reste distinct et n’a pas été lancé.
 
 ## Comportements couverts
 
@@ -36,7 +39,7 @@ La vérification dans une copie propre a révélé des références manquantes �
 - L’Android du téléphone et ses deux connexions BLE simultanées ne sont pas testés par l’émulation d’écran.
 - La réception physique de STOP, les limites mécaniques et le comportement à la perte de liaison sont inconnus.
 - L’alignement des sommiers et les caractéristiques électriques de l’éclairage ne sont pas mesurés.
-- Les workflows GitHub Actions et le déploiement Pages sont préparés, mais pas exécutés à distance.
+- La vérification GitHub Actions a réussi ; le déploiement Pages n’a pas encore été lancé.
 - L’installation réelle de la PWA sur Android reste à vérifier.
 
 Le suivi des essais physiques figure dans [TESTS_MATERIEL.md](TESTS_MATERIEL.md). Conserver la qualification « version de test » jusqu’à leur réalisation.
