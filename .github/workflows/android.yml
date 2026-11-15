@@ -30,6 +30,9 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+      - uses: android-actions/setup-android@v4
+        with:
+          log-accepted-android-sdk-licenses: false
       - run: npm ci
       - run: npm run android:sync
       - name: Install Android SDK components
