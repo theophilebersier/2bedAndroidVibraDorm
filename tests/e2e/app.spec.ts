@@ -7,6 +7,11 @@ test.beforeEach(({ page }) => {
   page.on('pageerror', error => messages.push(error.message));
 });
 test.afterEach(({ page }) => { expect(errors.get(page)).toEqual([]); });
+async function showLight(page: import('@playwright/test').Page): Promise<void> {
+  await page.getByRole('button', { name: 'Configurer les sommiers', exact: true }).click();
+  await page.getByRole('checkbox', { name: 'Afficher les commandes d’éclairage' }).check();
+  await page.getByRole('button', { name: 'Revenir à la télécommande' }).click();
+}
 async function holdButton(page: import('@playwright/test').Page, name: string): Promise<void> {
   const button = page.getByRole('button', { name, exact: true });
   await button.scrollIntoViewIfNeeded(); const box = (await button.boundingBox())!;
@@ -22,6 +27,7 @@ test('starts disconnected, simulation requires an explicit choice, layout fits',
   await page.getByRole('button', { name: 'Essayer sans connecter de lit' }).click();
   await expect(page.locator('#demo-banner')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Lever le dossier', exact: true })).toBeEnabled();
+  await showLight(page);
   await page.getByRole('button', { name: 'Allumer / appliquer' }).click();
   await expect(page.locator('#light-state')).toContainText('Gauche : 71 %');
   await page.getByRole('button', { name: 'Éteindre', exact: true }).click();
@@ -31,6 +37,7 @@ test('starts disconnected, simulation requires an explicit choice, layout fits',
 test('simulation never invokes an available Bluetooth API', async ({ page }) => {
   await mockBluetooth(page); await page.goto('./');
   await page.getByRole('button', { name: 'Essayer sans connecter de lit' }).click();
+  await showLight(page);
   await page.getByRole('button', { name: 'Allumer / appliquer' }).click();
   await expect(page.locator('#light-state')).toContainText('71 %');
   expect(await page.evaluate(() => (window as any).__ble.requests)).toBe(0);

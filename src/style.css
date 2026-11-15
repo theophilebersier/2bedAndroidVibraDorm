@@ -7,3 +7,5 @@
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 footer a{font-size:10px;color:#556f5b;text-decoration:none}body{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
 footer>div{flex-wrap:wrap;justify-content:center}
+
+.display-settings{min-width:0;margin:20px 0;padding:16px;border:1px solid var(--line);border-radius:13px}.display-settings legend{font-size:13px;font-weight:550;padding:0 6px}.setting-toggle{display:flex;align-items:center;gap:12px;min-height:44px;cursor:pointer;font-size:12px;line-height:1.6}.setting-toggle input{width:22px;height:22px;margin:0;accent-color:var(--green);flex-shrink:0}.display-settings p{font-size:10px;margin:8px 0 0}

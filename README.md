@@ -1,8 +1,8 @@
 # Dual Bed Sync
 
-Télécommande web pour deux sommiers Vibradorm V-MAT Basic CBI : commande indépendante ou combinée et éclairage sous le lit.
+Télécommande Android et web pour deux sommiers Vibradorm V-MAT Basic CBI : commande indépendante ou combinée et éclairage sous le lit.
 
-**Version 0.3.0 de test. Les tests logiciels utilisent des transports simulés ; le pilote Android reste à vérifier sur les sommiers réels.**
+**Version 0.3.1. Le fonctionnement de la version Android 0.3.0 a été confirmé par son utilisateur sur ses lits. Les tests automatisés utilisent des transports simulés.**
 
 Dépôt : [theophilebersier/2bedAndroidVibraDorm](https://github.com/theophilebersier/2bedAndroidVibraDorm).
 
@@ -22,7 +22,7 @@ Dépôt : [theophilebersier/2bedAndroidVibraDorm](https://github.com/theophilebe
 - STOP au relâchement, annulation tactile, perte de focus ou masquage de la page.
 - Commande combinée bloquée tant que les deux sessions ne sont pas prêtes.
 - Maintien limité à dix secondes ; relâcher puis maintenir de nouveau pour continuer.
-- Éclairage CBI : intensité, minuterie, allumage/extinction et relecture de l’état.
+- Éclairage CBI masqué par défaut, réactivable dans la configuration → Affichage → « Afficher les commandes d’éclairage ». Choix conservé après fermeture ; intensité et minuterie précédentes préservées.
 - Simulation explicite, y compris déconnexion d’un côté, sans appel Bluetooth.
 - Interface française responsive, contrôle au clavier et mode PWA avec cache de l’interface.
 - Diagnostic JSON sans noms ni identifiants d’appareils.

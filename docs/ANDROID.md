@@ -1,11 +1,11 @@
-# Dual Bed Sync pour Android — version 0.3.0
+# Dual Bed Sync pour Android — version 0.3.1
 
 **[Télécharger l’APK signé](https://github.com/theophilebersier/2bedAndroidVibraDorm/raw/refs/heads/apk/DualBedSync.apk)** · Android 7 ou plus récent.
 
 ## Installer et retrouver les lits
 
 1. Sur le téléphone, télécharger le fichier APK et l’ouvrir pour installer **Dual Bed Sync**. Android peut demander d’autoriser l’installation depuis le navigateur utilisé.
-2. Ouvrir cette nouvelle application. L’en-tête indique **ANDROID · v0.3.0**. Le raccourci web déjà installé est une autre application et peut être retiré de l’écran d’accueil.
+2. Ouvrir cette nouvelle application. L’en-tête indique **ANDROID · v0.3.1**. Le raccourci web déjà installé est une autre application et peut être retiré de l’écran d’accueil.
 3. Autoriser **Appareils à proximité**, activer le Bluetooth, puis choisir une fois le sommier gauche et le droit dans la configuration. Sur Android 7 à 11, le système demande aussi l’autorisation de localisation nécessaire au scan BLE ; aucune position n’est calculée ni transmise.
 4. Fermer puis rouvrir l’application près des lits. Elle tente de reconnecter les adresses mémorisées, sans nouvelle sélection et sans reprendre de mouvement. Vérifier ce fonctionnement sur le téléphone et les récepteurs réels.
 
@@ -14,6 +14,12 @@
 Le bouton « Tout monter » agit tant qu’il est maintenu, sur les lits sélectionnés. Le relâchement demande STOP. Le passage en arrière-plan et le bouton Retour Android terminent le maintien. Aucun service de commande moteur en arrière-plan n’est lancé.
 
 Le diagnostic peut être enregistré ou partagé via la feuille Android. Il exclut les noms et identifiants des lits. Rien n’est partagé avant cette action explicite.
+
+## Afficher ou masquer l’éclairage
+
+L’éclairage est masqué par défaut. Ouvrir la roue dentée, puis cocher **Afficher les commandes d’éclairage** dans **Affichage** pour le retrouver. Décocher pour le masquer. Ce choix est conservé dans Android et ne lance aucune commande Bluetooth.
+
+Pour mettre à jour, installer l’APK par-dessus l’application existante, sans la désinstaller : les associations des sommiers et les réglages sont conservés.
 
 ## Pourquoi l’APK
 

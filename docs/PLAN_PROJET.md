@@ -10,6 +10,8 @@ Créer une télécommande mobile simple pour deux sommiers Vibradorm, puis prép
 
 Les prescriptions du document original sont des exigences à examiner. Les affirmations sur les connexions simultanées, les caractéristiques électriques et la synchronisation mécanique ne constituent pas des résultats d’essais.
 
+Mise à jour : la version Android native 0.3.0 a été installée et son fonctionnement confirmé par l’utilisateur. La version 0.3.1 masque l’éclairage par défaut et ajoute une préférence persistante pour le réafficher. La version web reste disponible ; Android natif est désormais la solution retenue pour retrouver les sommiers sans sélecteur.
+
 ## 2. Choix techniques de départ
 
 | Sujet | Choix proposé | Condition de validation |
