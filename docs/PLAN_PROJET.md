@@ -14,6 +14,8 @@ Mise à jour : la version Android native 0.3.0 a été installée et son fonctio
 
 Mise à jour 0.4.0 : thème clair/sombre/automatique, noms locaux, côté préféré au démarrage, interface simplifiée et retour tactile natif optionnel. Le pilote BLE et les paquets moteur restent identiques ; aucun déplacement automatique ni position mémorisée n’est ajouté.
 
+Mise à jour 0.4.1 : le mode grands boutons est compacté pour le Galaxy S24 en portrait, avec toutes les commandes sur un écran et prise en compte des marges Android. La validation automatisée couvre aussi une hauteur réduite à 700 pixels CSS et des noms de 32 caractères.
+
 ## 2. Choix techniques de départ
 
 | Sujet | Choix proposé | Condition de validation |

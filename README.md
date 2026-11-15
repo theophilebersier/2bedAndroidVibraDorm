@@ -2,7 +2,7 @@
 
 Télécommande Android et web pour deux sommiers Vibradorm V-MAT Basic CBI : commande indépendante ou combinée et éclairage sous le lit.
 
-**Version 0.4.0. Le fonctionnement de la version Android 0.3.0 a été confirmé par son utilisateur sur ses lits. Les tests automatisés utilisent des transports simulés.**
+**Version 0.4.1. Le fonctionnement de la version Android 0.3.0 a été confirmé par son utilisateur sur ses lits. Les tests automatisés utilisent des transports simulés.**
 
 Dépôt : [theophilebersier/2bedAndroidVibraDorm](https://github.com/theophilebersier/2bedAndroidVibraDorm).
 
@@ -26,7 +26,7 @@ Dépôt : [theophilebersier/2bedAndroidVibraDorm](https://github.com/theophilebe
 - Thème clair, sombre (mode nuit) ou automatique selon le téléphone.
 - Noms personnalisés des côtés (32 caractères), conservés localement sans renommer les récepteurs Bluetooth.
 - Sélection gauche/droite/les deux au démarrage, sans mouvement automatique.
-- Interface simplifiée avec grands boutons et illustration masquée, tous les mouvements et STOP conservés.
+- Interface simplifiée avec grands boutons et illustration masquée, tous les mouvements et STOP conservés. Mise en page compacte en portrait au format Galaxy S24 : sélection des lits et commandes sur un écran, sans éclairage affiché.
 - Retour tactile désactivable : vibration au début et à la fin d’une commande moteur, native sur Android et selon la prise en charge du navigateur sur le web.
 - Simulation explicite, y compris déconnexion d’un côté, sans appel Bluetooth.
 - Interface française responsive, contrôle au clavier et mode PWA avec cache de l’interface.

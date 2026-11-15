@@ -8,7 +8,7 @@ test('Android bridge restores SharedPreferences after a fresh page without Web B
   await page.goto('./'); await connectBoth(page);
   expect(await page.evaluate(() => (window as any).__native.writes)).toEqual([]);
   expect(await page.evaluate(() => navigator.bluetooth)).toBeUndefined();
-  await expect(page.locator('.version')).toHaveText('ANDROID · v0.4.0');
+  await expect(page.locator('.version')).toHaveText('ANDROID · v0.4.1');
   await expect(page.locator('#apk-download')).toBeHidden();
   await page.reload();
   await expect(page.locator('#status-left')).toHaveText('Connecté');
