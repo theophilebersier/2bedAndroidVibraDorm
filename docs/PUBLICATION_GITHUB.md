@@ -28,7 +28,7 @@ Le workflow `Checks` exécute l’installation reproductible, le contrôle TypeS
 
 Dans les paramètres du dépôt, choisir **Pages → Source → GitHub Actions**. La disponibilité de Pages pour un dépôt privé dépend de l’offre GitHub ; vérifier les [conditions GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages).
 
-Dans **Actions**, lancer manuellement **Deploy Pages** sur `main`. Le workflow reconstruit et teste la version, puis publie `dist/`. L’URL est retournée par GitHub dans le résultat du déploiement. Le premier push ne déclenche pas de publication automatique.
+Le workflow **Deploy Pages** reconstruit et teste la version, puis publie `dist/`. Il se lance automatiquement lorsque le code de l’application ou sa configuration de construction change sur `main`. Les modifications de documentation seules ne redéploient pas l’application. Il peut aussi être lancé manuellement depuis **Actions → Deploy Pages → Run workflow** sur `main`. L’URL est retournée par GitHub dans le résultat du déploiement.
 
 La base Vite et les ressources PWA sont relatives (`./`) pour fonctionner sous le chemin du dépôt. Le service worker limite son cache à son propre scope. Il n’utilise aucune API serveur ou commande Bluetooth à distance. Le navigateur du téléphone établit les connexions directement avec les sommiers.
 
