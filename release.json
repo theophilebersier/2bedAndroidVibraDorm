@@ -1,0 +1,11 @@
+{
+  "version": "0.3.0",
+  "package": "ch.bersier.dualbedsync",
+  "versionCode": 300,
+  "minimumAndroid": "7.0",
+  "sourceCommit": "6b82d6d7d752194939269f01cee80186787c9636",
+  "sha256": "4d258d9c0de1d0a1e1b6f48636b713745d9a93ef844612cce037764829cb7f23",
+  "bytes": 3372016,
+  "certificateSha256": "17dea637c04e865a19f0448842f6588c3669e21430fd12c9a818b70f5fe203e0",
+  "hardwareValidated": false
+}
