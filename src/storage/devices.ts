@@ -1,12 +1,13 @@
 import { SIDES, type Side } from '../transport/types';
+import { deviceKey, readStored, writeStored } from './persistent';
+import { isAndroid } from '../platform';
 
 export interface RememberedDevice { id: string; automatic: boolean }
 export type RememberedDevices = Partial<Record<Side, RememberedDevice>>;
-const key = 'dual-bed-sync:devices:v1';
 
 export function readDevices(): RememberedDevices {
   try {
-    const value: unknown = JSON.parse(localStorage.getItem(key) ?? '{}');
+    const value: unknown = JSON.parse(readStored(deviceKey) ?? '{}');
     if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
     const result: RememberedDevices = {};
     for (const side of SIDES) {
@@ -22,6 +23,10 @@ export function readDevices(): RememberedDevices {
   } catch { return {}; }
 }
 
-export function saveDevices(value: RememberedDevices): void {
-  try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* Continue in memory if storage is unavailable. */ }
+export async function saveDevices(value: RememberedDevices): Promise<void> {
+  try { await writeStored(deviceKey, JSON.stringify(value)); }
+  catch {
+    if (isAndroid()) throw new Error('Impossible de mémoriser les sommiers dans Android. Libère du stockage puis réessaie.');
+    // The web app can continue for the current session if localStorage is unavailable.
+  }
 }

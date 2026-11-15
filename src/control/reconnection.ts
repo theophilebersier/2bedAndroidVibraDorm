@@ -1,17 +1,17 @@
-import { BluetoothTransport } from '../transport/bluetooth';
-import { SIDES, sideLabel, type BedTransport, type Side } from '../transport/types';
+import { connectDevice, getRememberedDevices } from '../transport/connection';
+import { SIDES, sideLabel, type BedTransport, type DeviceIdentity, type Side } from '../transport/types';
 import type { RememberedDevices } from '../storage/devices';
 
 interface ReconnectionOptions {
   remembered: RememberedDevices;
-  devices: Partial<Record<Side, BluetoothDevice>>;
+  devices: Partial<Record<Side, DeviceIdentity>>;
   available(): boolean;
   idle(): boolean;
   connected(side: Side): boolean;
   attach(side: Side, transport: BedTransport): void;
   changed(busy: boolean, side: Side | null, message: string): void;
-  getDevices?(): Promise<BluetoothDevice[]>;
-  connect?(device: BluetoothDevice): Promise<BedTransport>;
+  getDevices?(): Promise<DeviceIdentity[]>;
+  connect?(device: DeviceIdentity): Promise<BedTransport>;
 }
 
 /** Restores permissions, never opens a picker and never issues a motor command. */
@@ -52,9 +52,9 @@ export class Reconnection {
     let message = 'Recherche des sommiers mémorisés…';
     o.changed(true, null, message);
     try {
-      let granted: BluetoothDevice[] = [];
+      let granted: DeviceIdentity[] = [];
       if (missing.some(side => !o.devices[side])) {
-        const getDevices = o.getDevices ?? (() => navigator.bluetooth?.getDevices?.() ?? Promise.resolve([]));
+        const getDevices = o.getDevices ?? (() => getRememberedDevices(o.remembered));
         try { granted = await getDevices(); }
         catch { /* Keep the attribution; the user can renew permission with a click. */ }
       }
@@ -71,7 +71,7 @@ export class Reconnection {
         o.changed(true, side, `Reconnexion du lit ${sideLabel(side)}…`);
         let transport: BedTransport | undefined;
         try {
-          transport = await (o.connect ?? BluetoothTransport.connect)(device);
+          transport = await (o.connect ?? connectDevice)(device);
           if (!valid() || o.remembered[side]?.id !== saved.id || !o.remembered[side]?.automatic) {
             transport.disconnect(); break;
           }

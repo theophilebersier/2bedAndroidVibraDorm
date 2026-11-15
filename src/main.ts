@@ -1,8 +1,8 @@
 import './style.css';
 import { BedController } from './control/controller';
-import { BluetoothTransport, bluetoothSupport, chooseDevice } from './transport/bluetooth';
+import { connectDevice, connectionSupport, chooseDevice } from './transport/connection';
 import { SimulatedTransport } from './transport/simulated';
-import { SIDES, sideLabel, type Mode, type Side, type Target } from './transport/types';
+import { SIDES, sideLabel, type BedTransport, type DeviceIdentity, type Mode, type Side, type Target } from './transport/types';
 import type { Movement } from './protocol/vmat';
 import { readPreferences, savePreferences } from './storage/preferences';
 import { bedIllustration } from './ui/bed';
@@ -10,21 +10,25 @@ import { icon } from './ui/icons';
 import { readDevices, saveDevices } from './storage/devices';
 import { Reconnection } from './control/reconnection';
 import { VERSION } from './version';
+import { isAndroid } from './platform';
+import { App } from '@capacitor/app';
+import { exportDiagnostic } from './ui/diagnostic';
 
 const controller = new BedController();
 let preferences = readPreferences();
-const devices: Partial<Record<Side, BluetoothDevice>> = {};
+const devices: Partial<Record<Side, DeviceIdentity>> = {};
 const remembered = readDevices();
 const simulations: Partial<Record<Side, SimulatedTransport>> = {};
 let pairing: Side | null = null;
 let modeChanging = false;
 let recovering = false;
+let appActive = true;
 let reconnectingSide: Side | null = null;
 let setupMessage = '';
 let hold: { element: HTMLButtonElement; pointer?: number; key?: string } | null = null;
 const reconnection = new Reconnection({
   remembered, devices,
-  available: () => !document.hidden && !modeChanging && controller.snapshot().mode === 'real',
+  available: () => appActive && !document.hidden && !modeChanging && controller.snapshot().mode === 'real',
   idle: () => {
     const state = controller.snapshot();
     return !pairing && !state.active && !state.stopping && !state.accessoryBusy;
@@ -40,7 +44,7 @@ const reconnection = new Reconnection({
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
 app.innerHTML = `
-  <header class="topbar"><a class="brand" href="./" aria-label="Dual Bed Sync, accueil"><span class="brand-icon">${icon('bed')}</span><span>dual<span class="brand-light">bed</span><small>SYNC</small></span></a><div class="top-actions"><span class="version">VERSION DE TEST</span><button class="icon-button" id="open-setup" aria-label="Configurer les sommiers">${icon('settings')}</button></div></header>
+  <header class="topbar"><a class="brand" href="./" aria-label="Dual Bed Sync, accueil"><span class="brand-icon">${icon('bed')}</span><span>dual<span class="brand-light">bed</span><small>SYNC</small></span></a><div class="top-actions"><span class="version">${isAndroid() ? `ANDROID · v${VERSION}` : 'VERSION WEB'}</span><button class="icon-button" id="open-setup" aria-label="Configurer les sommiers">${icon('settings')}</button></div></header>
   <main>
     <div class="page-heading"><div><p class="eyebrow">VOTRE ESPACE DE REPOS</p><h1>Le confort, à deux.</h1></div><p class="heading-note">Chacun son côté.<br>Le même moment de calme.</p></div>
     <div id="demo-banner" class="demo-banner" hidden><span><strong>Mode simulation</strong> · Aucun lit réel n’est commandé.</span><button id="leave-demo">Passer au Bluetooth ${icon('arrow')}</button></div>
@@ -65,9 +69,9 @@ app.innerHTML = `
     </div>
     <div class="help-strip"><p>${icon('link')} <span>La commande combinée ne mesure pas l’alignement des sommiers.</span></p><button id="try-demo" class="text-button">Essayer sans connecter de lit ${icon('arrow')}</button></div>
   </main>
-  <footer><span>Un peu plus de calme, du bout des doigts.</span><div><button id="install" hidden>Installer l’application</button><button id="export">Diagnostic</button><button id="about">À propos</button><span>v${VERSION}</span></div></footer>
-  <dialog id="setup-dialog" aria-labelledby="setup-title"><div class="dialog-heading"><div><p class="eyebrow">CONNEXIONS</p><h2 id="setup-title">Vos sommiers</h2></div><button class="close-button" data-close="setup-dialog" aria-label="Fermer la configuration">×</button></div><p>Choisissez chaque sommier séparément et attribuez-lui son côté, vu depuis le pied du lit.</p><div class="mode-switch" role="group" aria-label="Mode de connexion"><button data-mode="real" aria-pressed="true">Bluetooth réel</button><button data-mode="demo" aria-pressed="false">Simulation</button></div><p class="support-message" id="support-message"></p><div class="setup-beds">${SIDES.map(side => `<article class="setup-bed"><div><strong>Lit ${sideLabel(side)}</strong><span id="device-${side}">Aucun appareil associé</span><small id="details-${side}"></small></div><div class="setup-bed-actions"><button class="primary-button" data-connect="${side}">Choisir un sommier</button><button class="text-button" data-change="${side}" hidden>Changer d’appareil</button><button class="text-button demo-fault" data-fault="${side}" hidden>Simuler une perte de liaison</button></div></article>`).join('')}</div><p id="setup-status" role="status"></p><p class="setup-footnote">Profil prévu : V-MAT Basic CBI. Les essais sur vos moteurs restent à réaliser. Aucune commande de mouvement n’est envoyée lors de la connexion.</p><button class="secondary-button dialog-done" data-close="setup-dialog">Revenir à la télécommande</button></dialog>
-  <dialog id="about-dialog" aria-labelledby="about-title"><div class="dialog-heading"><h2 id="about-title">Dual Bed Sync</h2><button class="close-button" data-close="about-dialog" aria-label="Fermer à propos">×</button></div><p>Version de test ${VERSION} pour les sommiers Vibradorm V-MAT Basic CBI. Application indépendante, sans affiliation avec Vibradorm ou Tempur.</p><p>Gardez l’application au premier plan pendant les commandes. Le maintien est limité à dix secondes ; relâchez puis maintenez de nouveau pour poursuivre. Une liaison Bluetooth perdue ne permet pas de confirmer l’arrêt physique : gardez la télécommande du lit accessible.</p><p>Les commandes groupées ne mesurent ni la position ni l’alignement mécanique. Les changements restent à vérifier sur les lits réels.</p><p>L’attribution gauche/droite et les réglages de lumière restent dans ce navigateur. Les sommiers autorisés sont reconnectés au retour sur la page, selon les permissions du navigateur. Aucun mouvement ne reprend. « Déconnecter » désactive la reconnexion automatique de ce côté jusqu’à votre prochaine connexion manuelle. Le diagnostic exporté exclut les identifiants et noms des appareils.</p><p>Protocole documenté par <a href="https://github.com/kristofferR/ha-adjustable-bed" target="_blank" rel="noopener noreferrer">kristofferR / ha-adjustable-bed</a>.</p></dialog>
+  <footer><span>Un peu plus de calme, du bout des doigts.</span><div><a id="apk-download" href="https://github.com/theophilebersier/2bedAndroidVibraDorm/raw/refs/heads/apk/DualBedSync.apk" ${isAndroid() ? 'hidden' : ''}>Installer sur Android</a><button id="install" hidden>Ajouter le raccourci web</button><button id="export">Diagnostic</button><button id="about">À propos</button><span>v${VERSION}</span></div></footer>
+  <dialog id="setup-dialog" aria-labelledby="setup-title"><div class="dialog-heading"><div><p class="eyebrow">CONNEXIONS</p><h2 id="setup-title">Vos sommiers</h2></div><button class="close-button" data-close="setup-dialog" aria-label="Fermer la configuration">×</button></div><p>Choisissez chaque sommier séparément et attribuez-lui son côté, vu depuis le pied du lit.</p><div class="mode-switch" role="group" aria-label="Mode de connexion"><button data-mode="real" aria-pressed="true">Bluetooth réel</button><button data-mode="demo" aria-pressed="false">Simulation</button></div><p class="support-message" id="support-message"></p><div class="setup-beds">${SIDES.map(side => `<article class="setup-bed"><div><strong>Lit ${sideLabel(side)}</strong><span id="device-${side}">Aucun appareil associé</span><small id="details-${side}"></small></div><div class="setup-bed-actions"><button class="primary-button" data-connect="${side}">Choisir un sommier</button><button class="text-button" data-change="${side}" hidden>Changer d’appareil</button><button class="text-button demo-fault" data-fault="${side}" hidden>Simuler une perte de liaison</button></div></article>`).join('')}</div><p id="setup-status" role="status"></p><p class="setup-footnote">Profil prévu : V-MAT Basic CBI. Les changements restent à vérifier sur vos moteurs. Aucune commande de mouvement n’est envoyée lors de la connexion.</p><button class="secondary-button dialog-done" data-close="setup-dialog">Revenir à la télécommande</button></dialog>
+  <dialog id="about-dialog" aria-labelledby="about-title"><div class="dialog-heading"><h2 id="about-title">Dual Bed Sync</h2><button class="close-button" data-close="about-dialog" aria-label="Fermer à propos">×</button></div><p>Version de test ${VERSION} pour les sommiers Vibradorm V-MAT Basic CBI. Application indépendante, sans affiliation avec Vibradorm ou Tempur.</p><p>Gardez l’application au premier plan pendant les commandes. Le maintien est limité à dix secondes ; relâchez puis maintenez de nouveau pour poursuivre. Une liaison Bluetooth perdue ne permet pas de confirmer l’arrêt physique : gardez la télécommande du lit accessible.</p><p>Les commandes groupées ne mesurent ni la position ni l’alignement mécanique. Les changements restent à vérifier sur les lits réels.</p><p>Les sommiers et les réglages de lumière restent sur cet appareil. Sur Android, les sommiers mémorisés sont reconnectés à l’ouverture si le Bluetooth est activé et les lits sont à portée. Dans la version web, cette fonction dépend du navigateur. Aucun mouvement ne reprend. « Déconnecter » désactive la reconnexion automatique de ce côté jusqu’à votre prochaine connexion manuelle. Le diagnostic exporté exclut les identifiants et noms des appareils.</p><p>Protocole documenté par <a href="https://github.com/kristofferR/ha-adjustable-bed" target="_blank" rel="noopener noreferrer">kristofferR / ha-adjustable-bed</a>.</p></dialog>
 `;
 
 const $ = <T extends HTMLElement = HTMLElement>(selector: string): T => document.querySelector<T>(selector)!;
@@ -108,7 +112,7 @@ function render(): void {
     const connect = $<HTMLButtonElement>(`[data-connect="${side}"]`);
     connect.disabled = blocked || Boolean(state.active);
     connect.textContent = pairing === side || reconnectingSide === side ? 'Connexion…' : bed.connected ? 'Déconnecter' : state.mode === 'demo' ? 'Connecter le lit simulé' : devices[side] || remembered[side] ? 'Reconnecter' : 'Choisir un sommier';
-    connect.disabled ||= state.mode === 'real' && !bed.connected && Boolean(bluetoothSupport());
+    connect.disabled ||= state.mode === 'real' && !bed.connected && Boolean(connectionSupport());
     const change = $<HTMLButtonElement>(`[data-change="${side}"]`);
     change.hidden = state.mode !== 'real' || (!devices[side] && !remembered[side]) || bed.connected;
     change.disabled = blocked;
@@ -117,7 +121,7 @@ function render(): void {
   for (const button of buttons('[data-mode]')) {
     button.setAttribute('aria-pressed', String(button.dataset.mode === state.mode)); button.disabled = blocked;
   }
-  $('#support-message').textContent = state.mode === 'real' ? bluetoothSupport() ?? 'Choisissez vos récepteurs V-MAT Basic CBI dans le sélecteur Bluetooth.' : 'Les mouvements et les connexions sont simulés dans ce navigateur.';
+  $('#support-message').textContent = state.mode === 'demo' ? 'Les mouvements et les connexions sont simulés.' : connectionSupport() ?? (isAndroid() ? 'Bluetooth Android : vos sommiers sont mémorisés sur ce téléphone et reconnectés à l’ouverture.' : typeof navigator.bluetooth?.getDevices === 'function' ? 'Choisissez vos récepteurs V-MAT Basic CBI dans le sélecteur Bluetooth.' : 'Ce navigateur demande de choisir à nouveau les lits après fermeture. Pour les retrouver automatiquement, installez l’application Android.');
   $('#setup-status').textContent = setupMessage || (state.fault && !pairing ? state.message : 'Les sommiers choisis sont mémorisés et reconnectés au retour sur la page.');
   const selected = state.target === 'both' ? SIDES : [state.target];
   $('#light-state').textContent = selected.map(side => {
@@ -207,9 +211,9 @@ async function connect(side: Side, change = false): Promise<void> {
     if (state.mode === 'real') {
       reconnection.suspend();
       if (remembered[side]) remembered[side]!.automatic = false;
-      saveDevices(remembered);
     }
     await controller.disconnect(side);
+    if (state.mode === 'real') await saveDevices(remembered);
     reconnection.resume(); return;
   }
   if (state.mode === 'demo') {
@@ -217,18 +221,21 @@ async function connect(side: Side, change = false): Promise<void> {
   }
   // Request synchronously in this click turn, before any await.
   reconnection.suspend();
-  const requested = !change && devices[side] ? Promise.resolve(devices[side]!) : chooseDevice();
+  const known = devices[side] ?? (isAndroid() && remembered[side] ? { id: remembered[side]!.id } : undefined);
+  const requested = !change && known ? Promise.resolve(known) : chooseDevice();
   pairing = side; setupMessage = ''; render();
-  let transport: BluetoothTransport | undefined;
+  let transport: BedTransport | undefined;
   try {
     const device = await requested;
     const other = side === 'left' ? 'right' : 'left';
     if (remembered[other]?.id === device.id || devices[other]?.id === device.id) throw new Error('Cet appareil est déjà attribué à l’autre côté. Choisissez le second sommier.');
-    transport = await BluetoothTransport.connect(device);
+    transport = await connectDevice(device);
+    const assignment = { id: device.id, automatic: true };
+    // Do not announce a remembered native connection before the durable write finishes.
+    await saveDevices({ ...remembered, [side]: assignment });
     controller.attach(side, transport);
     devices[side] = device;
-    remembered[side] = { id: device.id, automatic: true };
-    saveDevices(remembered);
+    remembered[side] = assignment;
     setupMessage = `Lit ${sideLabel(side)} connecté et mémorisé. Aucun mouvement envoyé.`;
     // Initial light read is deliberately optional and cannot start movement.
   } catch (error) { transport?.disconnect(); report(error); }
@@ -256,23 +263,25 @@ for (const [selector, action] of [['#light-on', 'on'], ['#light-off', 'off'], ['
   });
 }
 $('#export').addEventListener('click', () => {
-  const blob = new Blob([JSON.stringify(controller.diagnostics(), null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a'); link.href = url; link.download = 'dual-bed-sync-diagnostic.json'; link.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  releaseHold('diagnostic');
+  void controller.stop('diagnostic').then(() => exportDiagnostic(controller.diagnostics())).catch(report);
 });
+$('#apk-download').addEventListener('click', () => releaseHold('download'));
 
 interface InstallPrompt extends Event { prompt(): Promise<{ outcome: string }> }
 let installPrompt: InstallPrompt | null = null;
 window.addEventListener('beforeinstallprompt', event => {
+  if (isAndroid()) return;
   event.preventDefault(); installPrompt = event as InstallPrompt; $('#install').hidden = false;
 });
 $('#install').addEventListener('click', async () => { await installPrompt?.prompt(); installPrompt = null; $('#install').hidden = true; });
-if (import.meta.env.PROD && 'serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
+if (import.meta.env.PROD && !isAndroid() && 'serviceWorker' in navigator) {
+  const registerWorker = (): void => {
     // Updates wait until all existing pages close: no forced reload during movement.
     void navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(() => {});
-  });
+  };
+  if (document.readyState === 'complete') registerWorker();
+  else window.addEventListener('load', registerWorker, { once: true });
 }
 const wasConnected = { left: false, right: false };
 controller.subscribe(() => {
@@ -283,4 +292,17 @@ controller.subscribe(() => {
   }
   render();
 });
+if (isAndroid()) {
+  void App.addListener('appStateChange', ({ isActive }) => {
+    appActive = isActive;
+    if (isActive) reconnection.resume();
+    else { reconnection.suspend(); releaseHold('android-background'); }
+  }).catch(report);
+  void App.addListener('backButton', async () => {
+    releaseHold('android-back'); await controller.stop('android-back');
+    if (setup.open) setup.close();
+    else if ($<HTMLDialogElement>('#about-dialog').open) $<HTMLDialogElement>('#about-dialog').close();
+    else await App.minimizeApp();
+  }).catch(report);
+}
 updatePreferences(); render(); reconnection.resume();

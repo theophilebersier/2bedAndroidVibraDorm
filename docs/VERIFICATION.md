@@ -1,52 +1,45 @@
-# Vérifications — version 0.2.0
+# Vérifications — version 0.3.0 Android et web
 
-Réalisées le 15 novembre 2026 sur Windows, avec Node.js 26.13.0 et Chrome installé sur le poste. Les tests du projet fixent les versions des outils dans `package-lock.json`.
-
-## Résultats logiciels
+Réalisées le 15 novembre 2026 sur Windows : Node.js 26.13.0, Chrome installé, JDK 21.0.13, Gradle 8.14.3 et Android SDK 36.
 
 | Vérification | Résultat |
 | --- | --- |
-| TypeScript strict, sans émission | Réussi |
-| Tests unitaires Vitest | 50 réussis, 6 fichiers |
-| Tests navigateur Playwright | 30 réussis : 15 ordinateur et 15 mobile émulé |
-| Construction Vite de production | Réussie |
-| Génération du cache PWA | Réussie, ressources du build figées |
-| Ressources servies à la racine | HTTP 200 vérifié lors des captures |
-| Chemin de dépôt `/2bedAndroidVibraDorm/` | Vérifié par les tests navigateur, y compris hors ligne |
-| Captures ordinateur / mobile | Version 0.2.0 examinée, bouton « Tout monter » visible ; images du README issues de la version 0.1.0 |
-| Débordement horizontal | Aucun dans les captures et la vérification à 320 px |
-| Installation depuis une archive propre | `npm ci` et construction réussis à partir du fichier de verrouillage |
-| Document original dans l’archive Git | Octets identiques à la source fournie |
-| GitHub Actions, Ubuntu et Node.js 24 | Version 0.2.0 : installation, contrôle, construction et 30 tests navigateur réussis |
-| Publication GitHub Pages | Version 0.2.0 déployée, réponse HTTPS 200 |
-| Vérification dans Chrome de la version publique | Version, « Tout monter », simulation, éclairage, cache hors ligne et reconnexion de deux faux récepteurs après rechargement réussis ; aucune erreur JavaScript |
+| TypeScript strict, interface et configuration Capacitor | Réussi |
+| Tests unitaires Vitest | 62 réussis, 8 fichiers |
+| Tests Playwright | 38 réussis : 19 ordinateur et 19 mobile émulé |
+| Construction de production, cache web hors ligne | Réussis |
+| Synchronisation Capacitor et 5 plugins natifs | Réussie |
+| Android `assembleRelease` et `:app:lintRelease` | Réussis ; lint : 0 erreur, 18 avertissements de versions et de ressources du modèle |
+| Alignement et signature APK | RSA 3072 bits, signatures v2 et v3 vérifiées par apksigner |
+| Métadonnées APK | `ch.bersier.dualbedsync`, version 0.3.0 / code 300, minimum API 24 (Android 7), cible API 36, release sans débogage |
+| Permissions | Appareils à proximité ; localisation limitée à Android 11 et antérieurs ; scan `neverForLocation` |
 
-Les sources sont publiées dans [theophilebersier/2bedAndroidVibraDorm](https://github.com/theophilebersier/2bedAndroidVibraDorm). L’exécution distante [Checks du commit ba4960f](https://github.com/theophilebersier/2bedAndroidVibraDorm/actions/runs/43702439175) s’est terminée avec succès : `npm ci`, `npm run check`, installation de Chromium et `npm run test:e2e`.
+APK : 3 372 016 octets. SHA-256 :
 
-Le [déploiement Pages du commit ba4960f](https://github.com/theophilebersier/2bedAndroidVibraDorm/actions/runs/43702439207) a réussi le 15 novembre 2026. L’URL publiée est [https://theophilebersier.github.io/2bedAndroidVibraDorm/](https://theophilebersier.github.io/2bedAndroidVibraDorm/). Une vérification dans Chrome a confirmé la version 0.2.0, la réponse HTTP 200, le contexte sécurisé, la simulation avec éclairage et un rechargement hors ligne sans reprise de mouvement. Avec Web Bluetooth simulé dans le navigateur sur cette URL publique, les deux récepteurs ont été retrouvés après rechargement, sans nouvelle sélection et sans écriture moteur. Le service worker utilise le scope du dépôt et aucune erreur JavaScript n’a été relevée dans ces parcours.
+```text
+4d258d9c0de1d0a1e1b6f48636b713745d9a93ef844612cce037764829cb7f23
+```
 
-## Comportements couverts
+Certificat de signature, empreinte SHA-256 :
 
-Les tests unitaires vérifient les trames et les bornes, les lectures incomplètes, la priorité de STOP, l’annulation d’une répétition, un relâchement pendant une écriture, le refus d’un mouvement combiné incomplet, une erreur de commande, une perte de connexion, la limite de maintien et la reprise sans mouvement. Ils vérifient aussi les dépassements de délai, une connexion terminant tardivement et le refus de transports mélangés ou de commandes inconnues.
+```text
+17dea637c04e865a19f0448842f6588c3669e21430fd12c9a818b70f5fe203e0
+```
 
-Les tests Chrome parcourent l’application construite : état initial déconnecté, simulation sans appel Bluetooth, éclairage, connexion aux deux faux récepteurs, maintien/relâchement, perte d’un récepteur, reconnexion, perte de focus clavier et masquage de page. Ils contrôlent le rechargement hors ligne sans reprise de session et le téléchargement d’un diagnostic sans identité d’appareil. Aucun événement JavaScript non géré n’a été observé dans ces scénarios.
+Les tests couvrent le protocole CBI, STOP prioritaire, les pertes de liaison, les délais, les cibles combinées, la limite de maintien et l’éclairage. « Tout monter » envoie `10` aux seules cibles sélectionnées, puis `ff` au relâchement.
 
-La version 0.2.0 ajoute les vérifications suivantes : restauration des identifiants exacts gauche/droite après rechargement sans sélecteur ni écriture moteur ; reconnexion au retour d’une autre application sans reprise du maintien ; déconnexion volontaire conservée au rechargement et réactivation manuelle ; repli manuel en l’absence de `getDevices` ; nouvelle tentative après un échec radio ; absence de reconnexion réelle en simulation ; commande « Tout monter » (`10`) sur les seules cibles sélectionnées et STOP au relâchement.
+Le pilote Android est testé avec des appels BLE simulés : connexion directe par adresse sans sélecteur ni écriture moteur, relecture du profil, refus d’un récepteur incompatible, écritures avec réponse, délai dépassé, fermeture après échec et attente de fin de déconnexion. L’ancien transport ne peut pas fermer la nouvelle connexion. Le stockage est relu au démarrage et une écriture durable doit aboutir avant l’annonce d’un enregistrement.
 
-Les nouveaux tests unitaires couvrent aussi les données locales invalides, les identifiants dupliqués, les permissions indisponibles, le stockage refusé, les tentatives limitées, l’attente de la fin des commandes et l’invalidation d’une connexion achevée après masquage. Une ancienne tentative Bluetooth terminant tardivement ne peut plus refermer une connexion plus récente.
+Quatre parcours utilisent les vrais adaptateurs JavaScript Capacitor avec un pont Android simulé et sans Web Bluetooth : réouverture sans sélection, pause avec STOP puis reconnexion sans reprise, déconnexion volontaire conservée et reconnexion par adresse, partage du diagnostic sans identité d’appareil. Ils passent chacun sur ordinateur et mobile émulé. Les 30 parcours web passent également, y compris le mode hors ligne. Aucun événement JavaScript non géré n’a été observé.
 
-Deux défauts trouvés pendant les essais ont été corrigés et couverts : l’ancien propriétaire d’une connexion ne referme plus la connexion qui vient d’être rétablie ; le cache statique reste utilisable lorsque le serveur varie ses réponses selon l’en-tête Origin.
+Les sources et workflows sont publiés dans [le dépôt GitHub](https://github.com/theophilebersier/2bedAndroidVibraDorm). Les résultats distants des workflows Checks, Deploy Pages et Android APK sont disponibles dans [GitHub Actions](https://github.com/theophilebersier/2bedAndroidVibraDorm/actions).
 
-Le serveur de test est géré directement par l’API Vite pour assurer sa fermeture sur Windows. Les tests utilisent le chemin d’un dépôt GitHub Pages, tandis que le script de capture vérifie également un hébergement à la racine.
+## Limites
 
-La vérification dans une copie propre a révélé des références manquantes à des dépendances facultatives d’autres plateformes. Le fichier de verrouillage a été complété, puis l’installation standard `npm ci` et la construction ont été vérifiées dans cette copie, avec le cache npm préchargé. Le téléchargement réseau par npm n’a pas été testé ici : le client HTTPS de l’environnement a servi à précharger le cache. Aucun chemin local de dépendance n’est enregistré dans le verrouillage.
+L’émulateur Android installé sur ce poste n’a pas démarré faute d’accélération Windows Hypervisor Platform active. Windows n’a pas été modifié. Les tests mobiles ci-dessus sont des tests de navigateur et de pont natif simulé.
 
-## Ce que ces résultats ne valident pas
+Aucun essai Bluetooth natif sur le téléphone et les lits réels n’a été effectué par l’agent. L’installation, la reconnexion après fermeture complète, les deux liaisons BLE simultanées et la réception physique de STOP restent à confirmer sur le matériel. Une liaison perdue ou un processus terminé empêche de garantir la réception de STOP. Aucun alignement mécanique n’est mesuré.
 
-- Aucune connexion Bluetooth réelle aux sommiers n’a été effectuée.
-- L’Android du téléphone et ses deux connexions BLE simultanées ne sont pas testés par l’émulation d’écran.
-- La réception physique de STOP, les limites mécaniques et le comportement à la perte de liaison sont inconnus.
-- L’alignement des sommiers et les caractéristiques électriques de l’éclairage ne sont pas mesurés.
-- L’installation réelle de la PWA sur Android reste à vérifier.
+Le retour utilisateur sur la version 0.2.0 a confirmé que la PWA demandait encore une sélection après fermeture : `getDevices` et les permissions persistantes ne sont pas disponibles dans toutes les configurations Chrome. La version 0.3.0 fournit l’APK natif et indique cette limitation sur le web.
 
-Le suivi des essais physiques figure dans [TESTS_MATERIEL.md](TESTS_MATERIEL.md). Conserver la qualification « version de test » jusqu’à leur réalisation.
+Procédures : [installation Android](ANDROID.md) et [essais matériels](TESTS_MATERIEL.md).

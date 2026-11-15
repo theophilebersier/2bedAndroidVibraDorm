@@ -28,4 +28,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-Les dépendances npm sont uniquement des outils de développement et de test ; leurs licences se trouvent dans les paquets installés. Le fichier `package-lock.json` fixe les versions et leurs intégrités.
+La version Android emploie Capacitor et ses plugins App, Preferences, Filesystem et Share (Drifty / Ionic), ainsi que `@capacitor-community/bluetooth-le`. Les licences MIT des composants d’exécution sont réunies dans [public/THIRD_PARTY_LICENSES.txt](public/THIRD_PARTY_LICENSES.txt), généré depuis les paquets verrouillés et embarqué dans l’APK. Les bibliothèques AndroidX, Kotlin et Cordova utilisées par la compilation conservent leurs licences Apache 2.0 et les notices présentes dans leurs distributions.
+
+Les autres dépendances npm servent au développement et aux tests. Le fichier `package-lock.json` fixe les versions et les intégrités.

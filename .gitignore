@@ -11,3 +11,17 @@ test-results/
 diagnostics-private/
 .DS_Store
 Thumbs.db
+android/.gradle/
+android/.idea/
+android/local.properties
+android/**/build/
+android/capacitor-cordova-android-plugins/
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
+*.apk
+*.aab
+*.jks
+*.keystore
+*.p12
+signing-private/

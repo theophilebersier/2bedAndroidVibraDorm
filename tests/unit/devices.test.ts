@@ -15,10 +15,10 @@ it('rejects duplicate assignments, corrupt data and invalid records', () => {
     storage(value); expect(readDevices()).toEqual({});
   }
 });
-it('saves only local assignments and tolerates denied storage', () => {
-  const mock = storage(null); saveDevices({ left: { id: 'id', automatic: true } });
+it('saves only local assignments and tolerates denied storage', async () => {
+  const mock = storage(null); await saveDevices({ left: { id: 'id', automatic: true } });
   expect(mock.setItem).toHaveBeenCalledWith('dual-bed-sync:devices:v1', '{"left":{"id":"id","automatic":true}}');
   mock.getItem.mockImplementation(() => { throw new Error('denied'); });
   mock.setItem.mockImplementation(() => { throw new Error('full'); });
-  expect(readDevices()).toEqual({}); expect(() => saveDevices({})).not.toThrow();
+  expect(readDevices()).toEqual({}); await expect(saveDevices({})).resolves.toBeUndefined();
 });

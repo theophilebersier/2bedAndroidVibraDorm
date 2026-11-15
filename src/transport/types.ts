@@ -1,6 +1,7 @@
 export type Side = 'left' | 'right';
 export type Target = Side | 'both';
 export type Mode = 'real' | 'demo';
+export interface DeviceIdentity { readonly id: string; readonly name?: string }
 export interface BedTransport {
   readonly id: string;
   readonly name: string;
