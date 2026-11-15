@@ -10,7 +10,7 @@ export const UUID = {
 
 export const MOVEMENTS = {
   backUp: 0x0b, backDown: 0x0a, legsUp: 0x09, legsDown: 0x08,
-  allDown: 0x00,
+  allDown: 0x00, allUp: 0x10,
 } as const;
 export type Movement = keyof typeof MOVEMENTS;
 export const movementPacket = (command: Movement): Uint8Array<ArrayBuffer> => {

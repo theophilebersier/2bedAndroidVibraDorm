@@ -33,6 +33,7 @@ Chaque commande est un octet, écrit avec réponse sur la caractéristique moteu
 | Baisser le dossier | `0a` |
 | Lever les jambes | `09` |
 | Baisser les jambes | `08` |
+| Monter les deux zones | `10` |
 | Descendre les deux zones | `00` |
 | Relâchement / STOP | `ff` |
 
@@ -54,6 +55,8 @@ Le contrôle de l’éclairage sur les deux lits est une orchestration propre à
 - Délai de connexion : dix secondes ; opération GATT : 1,5 seconde. Ce sont des limites choisies par le logiciel, sans garantie du fabricant.
 - Sur dépassement, la connexion est fermée. Une connexion terminant tardivement est également refermée.
 - Après reconnexion, tous les services et caractéristiques sont recherchés de nouveau ; aucun mouvement n’est repris.
+- Les choix gauche/droite sont enregistrés localement après validation du profil. Les appareils déjà autorisés sont retrouvés par identifiant exact via [getDevices](https://googlechrome.github.io/samples/web-bluetooth/get-devices.html). La restauration au premier plan est séquentielle, avec au plus trois tentatives par appareil (immédiate, puis après 1 et 3 secondes), et ne transmet aucune trame moteur. Les connexions existantes restent ouvertes au masquage ; une tentative encore en cours est invalidée et son résultat tardif refermé.
+- Une déconnexion volontaire suspend la reconnexion du côté concerné jusqu’à une nouvelle connexion manuelle. Aucun sélecteur ni reconnexion réelle en simulation ou en arrière-plan.
 
 Les limites et délais n’annulent pas rétroactivement une trame déjà transmise. Les essais physiques, notamment le comportement à la perte de liaison, restent indispensables.
 

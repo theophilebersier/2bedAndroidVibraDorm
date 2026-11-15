@@ -106,3 +106,116 @@ test('diagnostic download contains no device identity', async ({ page }) => {
   expect(text).not.toContain('Private'); expect(text).not.toContain('private-');
   expect(JSON.parse(text).hardwareValidated).toBe(false);
 });
+
+test('reload restores the same left/right receivers without a picker or a motor command', async ({ page }) => {
+  await mockBluetooth(page); await page.goto('./'); await connectBoth(page);
+  await page.reload();
+  await expect(page.locator('#status-left')).toHaveText('Connecté');
+  await expect(page.locator('#status-right')).toHaveText('Connecté');
+  expect(await page.evaluate(() => (window as any).__ble.requests)).toBe(0);
+  expect(await page.evaluate(() => (window as any).__ble.connects)).toEqual([0, 1]);
+  expect(await page.evaluate(() => (window as any).__ble.writes)).toEqual([]);
+  await page.getByRole('button', { name: 'Configurer les sommiers', exact: true }).click();
+  await expect(page.locator('#device-left')).toHaveText('Private Bluetooth 0');
+  await expect(page.locator('#device-right')).toHaveText('Private Bluetooth 1');
+});
+
+test('return from another app reconnects lost receivers without repeating the held command', async ({ page }) => {
+  await mockBluetooth(page); await page.goto('./'); await connectBoth(page);
+  await holdButton(page, 'Lever le dossier');
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'hidden', { configurable: true, value: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  await expect(page.locator('#movement-status')).toContainText('Arrêt demandé');
+  await page.mouse.up();
+  await page.evaluate(() => {
+    const ble = (window as any).__ble;
+    ble.devices.forEach((device: any) => device.gatt.disconnect());
+    ble.writes = [];
+    Object.defineProperty(document, 'hidden', { configurable: true, value: false });
+    document.dispatchEvent(new Event('visibilitychange'));
+    window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }));
+  });
+  await expect(page.locator('#status-right')).toHaveText('Connecté');
+  await expect(page.locator('#status-left')).toHaveText('Connecté');
+  expect(await page.evaluate(() => (window as any).__ble.requests)).toBe(2);
+  await page.waitForTimeout(200);
+  expect(await page.evaluate(() => (window as any).__ble.writes)).toEqual([]);
+  await expect(page.locator('#selection-state')).toHaveText('Connecté');
+});
+
+test('intentional disconnection survives reload and manual reconnect enables remembering again', async ({ page }) => {
+  await mockBluetooth(page); await page.goto('./'); await connectBoth(page);
+  await page.getByRole('button', { name: 'Configurer les sommiers', exact: true }).click();
+  await page.locator('[data-connect="left"]').click();
+  await expect(page.locator('[data-connect="left"]')).toHaveText('Reconnecter');
+  await page.reload();
+  await expect(page.locator('#status-right')).toHaveText('Connecté');
+  await expect(page.locator('#status-left')).toHaveText('Non connecté');
+  expect(await page.evaluate(() => (window as any).__ble.connects)).toEqual([1]);
+  await page.getByRole('button', { name: 'Configurer les sommiers', exact: true }).click();
+  await page.locator('[data-connect="left"]').click();
+  await expect(page.locator('[data-connect="left"]')).toHaveText('Déconnecter');
+  await page.reload();
+  await expect(page.locator('#status-left')).toHaveText('Connecté');
+  expect(await page.evaluate(() => (window as any).__ble.requests)).toBe(0);
+});
+
+test('a browser without getDevices offers manual permission renewal after reload', async ({ page }) => {
+  await mockBluetooth(page, false); await page.goto('./'); await connectBoth(page);
+  await page.reload();
+  await page.getByRole('button', { name: 'Configurer les sommiers', exact: true }).click();
+  await expect(page.locator('#setup-status')).toContainText('Autorisation Bluetooth à renouveler');
+  await expect(page.locator('[data-connect="left"]')).toHaveText('Reconnecter');
+  expect(await page.evaluate(() => (window as any).__ble.requests)).toBe(0);
+  await page.locator('[data-connect="left"]').click();
+  await expect(page.locator('[data-connect="left"]')).toHaveText('Déconnecter');
+});
+
+test('a transient connection failure is retried without asking for another device', async ({ page }) => {
+  await mockBluetooth(page); await page.goto('./'); await connectBoth(page);
+  await page.evaluate(() => {
+    const ble = (window as any).__ble;
+    ble.failures = 1; ble.devices[1].gatt.disconnect(); ble.writes = [];
+  });
+  await expect(page.locator('#status-right')).toHaveText('Connecté', { timeout: 10000 });
+  expect(await page.evaluate(() => (window as any).__ble.requests)).toBe(2);
+  expect(await page.evaluate(() => (window as any).__ble.connects.filter((side: number) => side === 1).length)).toBe(3);
+  expect(await page.evaluate(() => (window as any).__ble.writes)).toEqual([]);
+});
+
+test('Tout monter sends 0x10 only while held, to the selected beds, then STOP', async ({ page }) => {
+  await mockBluetooth(page); await page.goto('./'); await connectBoth(page);
+  await holdButton(page, 'Tout monter Maintenir le bouton');
+  await expect.poll(async () => page.evaluate(() => (window as any).__ble.writes.filter((w: any) => w.byte === 16).length)).toBeGreaterThanOrEqual(2);
+  await page.mouse.up();
+  await expect(page.locator('#movement-status')).toContainText('Arrêt demandé');
+  const writes = await page.evaluate(() => (window as any).__ble.writes);
+  for (const side of [0, 1]) expect(writes.filter((w: any) => w.side === side).at(-1).byte).toBe(255);
+  await page.getByRole('button', { name: 'Gauche', exact: true }).click();
+  await expect(page.locator('#bed-title')).toHaveText('Le sommier gauche');
+  await page.evaluate(() => { (window as any).__ble.writes = []; });
+  await holdButton(page, 'Tout monter Maintenir le bouton');
+  await expect.poll(async () => page.evaluate(() => (window as any).__ble.writes.filter((w: any) => w.byte === 16).length)).toBeGreaterThan(0);
+  await page.mouse.up();
+  expect(await page.evaluate(() => (window as any).__ble.writes.filter((w: any) => w.byte === 16).every((w: any) => w.side === 0))).toBe(true);
+});
+
+test('remembered real beds remain disconnected when returning in simulation', async ({ page }) => {
+  await mockBluetooth(page); await page.goto('./'); await connectBoth(page);
+  await page.getByRole('button', { name: 'Essayer sans connecter de lit' }).click();
+  await expect(page.locator('#demo-banner')).toBeVisible();
+  await page.evaluate(() => {
+    (window as any).__ble.writes = [];
+    Object.defineProperty(document, 'hidden', { configurable: true, value: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+    Object.defineProperty(document, 'hidden', { configurable: true, value: false });
+    document.dispatchEvent(new Event('visibilitychange'));
+    window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }));
+  });
+  await page.waitForTimeout(200);
+  expect(await page.evaluate(() => (window as any).__ble.connects)).toEqual([0, 1]);
+  expect(await page.evaluate(() => (window as any).__ble.writes)).toEqual([]);
+  await expect(page.locator('#status-left')).toHaveText('Simulé · connecté');
+});

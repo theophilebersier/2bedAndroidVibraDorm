@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { lightPacket, movementPacket, parseLight, stopPacket, UUID } from '../../src/protocol/vmat';
 
 describe('wire contract from pinned V-MAT Basic CBI reference', () => {
-  it.each([['backUp', 0x0b], ['backDown', 0x0a], ['legsUp', 0x09], ['legsDown', 0x08], ['allDown', 0x00]] as const)('encodes %s', (command, byte) => {
+  it.each([['backUp', 0x0b], ['backDown', 0x0a], ['legsUp', 0x09], ['legsDown', 0x08], ['allDown', 0x00], ['allUp', 0x10]] as const)('encodes %s', (command, byte) => {
     expect([...movementPacket(command)]).toEqual([byte]);
   });
   it('uses the exact movement characteristic and fresh release packets', () => {

@@ -1,7 +1,8 @@
 import type { Page } from '@playwright/test';
-export async function mockBluetooth(page: Page): Promise<void> {
-  await page.addInitScript(() => {
-    const state = { requests: 0, writes: [] as { side: number; byte: number; kind: string }[], devices: [] as MockDevice[] };
+export async function mockBluetooth(page: Page, persistent = true): Promise<void> {
+  await page.addInitScript(({ persistent }) => {
+    const grants: number[] = JSON.parse(sessionStorage.getItem('mock-grants') ?? '[]');
+    const state = { requests: 0, gets: 0, failures: 0, permissions: true, connects: [] as number[], writes: [] as { side: number; byte: number; kind: string }[], devices: [] as MockDevice[] };
     class MockDevice extends EventTarget {
       id: string; name: string; light = Uint8Array.of(0, 0, 0);
       gatt: { connected: boolean; connect: () => Promise<unknown>; disconnect: () => void };
@@ -10,6 +11,8 @@ export async function mockBluetooth(page: Page): Promise<void> {
         this.gatt = {
           connected: false,
           connect: async () => {
+            state.connects.push(side);
+            if (state.failures > 0) { state.failures--; throw new Error('Out of range'); }
             this.gatt.connected = true;
             return { getPrimaryService: async () => ({
               getCharacteristic: async (uuid: string) => ({
@@ -28,13 +31,18 @@ export async function mockBluetooth(page: Page): Promise<void> {
         };
       }
     }
+    state.devices = grants.map(side => new MockDevice(side));
     Object.defineProperty(navigator, 'bluetooth', { configurable: true, value: {
       requestDevice: async () => {
-        const device = new MockDevice(state.requests++); state.devices.push(device); return device;
+        state.requests++;
+        const side = Math.max(-1, ...grants) + 1;
+        grants.push(side); sessionStorage.setItem('mock-grants', JSON.stringify(grants));
+        const device = new MockDevice(side); state.devices.push(device); return device;
       },
+      ...(persistent ? { getDevices: async () => { state.gets++; return state.permissions ? state.devices : []; } } : {}),
     } });
     Object.assign(window, { __ble: state });
-  });
+  }, { persistent });
 }
 export async function connectBoth(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'Configurer les sommiers', exact: true }).click();

@@ -40,3 +40,15 @@ it('closes a connect that completes after the onboarding deadline', async () => 
   mock.gatt.connected = true; pending.resolve({}); await vi.advanceTimersByTimeAsync(1);
   expect(mock.gatt.connected).toBe(false);
 });
+it('a timed-out owner cannot close a newer connection when its native promise resolves', async () => {
+  vi.useFakeTimers(); const mock = mockDevice(); const pending = deferred<any>();
+  const normalConnect = mock.gatt.connect;
+  mock.gatt.connect = () => pending.promise;
+  const old = BluetoothTransport.connect(mock.device);
+  const rejected = expect(old).rejects.toThrow('Délai Bluetooth');
+  await vi.advanceTimersByTimeAsync(10001); await rejected;
+  mock.gatt.connect = normalConnect;
+  const current = await BluetoothTransport.connect(mock.device);
+  pending.resolve({}); await vi.advanceTimersByTimeAsync(1);
+  expect(current.connected).toBe(true); current.disconnect();
+});

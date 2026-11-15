@@ -1,6 +1,7 @@
 import { lightPacket, movementPacket, parseLight, stopPacket, type LightState, type Movement } from '../protocol/vmat';
 import { SIDES, sideLabel, type BedTransport, type Mode, type Side, type Target } from '../transport/types';
 import { OperationLane } from './lane';
+import { VERSION } from '../version';
 
 interface Session {
   transport: BedTransport;
@@ -220,7 +221,7 @@ export class BedController {
 
   diagnostics(): object {
     return {
-      app: 'Dual Bed Sync', version: '0.1.0', hardwareValidated: false,
+      app: 'Dual Bed Sync', version: VERSION, hardwareValidated: false,
       mode: this.mode, target: this.target,
       // No device ID/name/model/firmware, packets, raw exceptions or persistent history.
       connections: Object.fromEntries(SIDES.map(side => [side, { connected: this.connected(side) }])),

@@ -31,6 +31,7 @@ export function chooseDevice(): Promise<BluetoothDevice> {
 }
 
 export class BluetoothTransport implements BedTransport {
+  private static owners = new WeakMap<BluetoothDevice, BluetoothTransport>();
   readonly mode = 'real' as const;
   model?: string;
   firmware?: string;
@@ -52,10 +53,15 @@ export class BluetoothTransport implements BedTransport {
 
   static async connect(device: BluetoothDevice): Promise<BluetoothTransport> {
     const transport = new BluetoothTransport(device);
+    BluetoothTransport.owners.set(device, transport);
     try {
       if (!device.gatt) throw new Error('Cet appareil ne propose pas de serveur GATT.');
       const connecting = device.gatt.connect().then(server => {
-        if (transport.closed) { device.gatt?.disconnect(); throw new Error('Connexion annulée.'); }
+        if (transport.closed) {
+          // An old native connect may resolve after a timeout and a fresh attempt.
+          if (BluetoothTransport.owners.get(device) === transport) device.gatt?.disconnect();
+          throw new Error('Connexion annulée.');
+        }
         return server;
       });
       const server = await transport.timed(connecting, 10000);
@@ -99,6 +105,7 @@ export class BluetoothTransport implements BedTransport {
     await this.timed(this.light.writeValueWithResponse(packet));
   }
   disconnect(): void {
+    if (this.closed) return;
     this.device.gatt?.disconnect();
     if (!this.closed) this.disconnected();
   }

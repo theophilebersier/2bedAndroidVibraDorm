@@ -2,7 +2,7 @@
 
 Télécommande web pour deux sommiers Vibradorm V-MAT Basic CBI : commande indépendante ou combinée et éclairage sous le lit.
 
-**Version 0.1.0 de test. Les tests logiciels utilisent des transports simulés ; le fonctionnement sur les moteurs réels n’est pas encore validé.**
+**Version 0.2.0 de test. Les tests logiciels utilisent des transports simulés ; les changements restent à vérifier sur les moteurs réels.**
 
 Dépôt : [theophilebersier/2bedAndroidVibraDorm](https://github.com/theophilebersier/2bedAndroidVibraDorm).
 
@@ -14,7 +14,8 @@ Dépôt : [theophilebersier/2bedAndroidVibraDorm](https://github.com/theophilebe
 
 - Sélection du lit gauche, droit ou des deux.
 - Dossier et jambes : monter/descendre tant que le bouton est maintenu.
-- Descente des deux zones par maintien, sans estimation de position.
+- « Tout monter » et « Tout descendre » : les deux zones par maintien, sans estimation de position.
+- Attribution gauche/droite mémorisée et reconnexion automatique au retour sur la page.
 - STOP au relâchement, annulation tactile, perte de focus ou masquage de la page.
 - Commande combinée bloquée tant que les deux sessions ne sont pas prêtes.
 - Maintien limité à dix secondes ; relâcher puis maintenir de nouveau pour continuer.
@@ -34,7 +35,7 @@ npm run dev
 
 Ouvrir l’URL locale affichée par Vite. Sous PowerShell, employer `npm.cmd` si l’exécution de `npm.ps1` est bloquée.
 
-Le bouton « Essayer sans connecter de lit » permet de parcourir l’application immédiatement. Le mode réel reste le mode initial ; aucune connexion ni commande de mouvement n’est lancée au chargement.
+Le bouton « Essayer sans connecter de lit » permet de parcourir l’application immédiatement. Le mode réel reste le mode initial. Au chargement, seuls les sommiers déjà mémorisés et autorisés peuvent être reconnectés ; aucune commande de mouvement n’est lancée.
 
 Pour construire et prévisualiser la version installable :
 
@@ -54,7 +55,11 @@ Servir `dist/` par HTTP local ou HTTPS. Ouvrir directement le fichier `index.htm
 
 La configuration vérifie les services et les propriétés GATT attendus. Un nom Bluetooth ou un modèle lu ne prouve pas à lui seul la compatibilité. La sélection propose les appareils à proximité ; choisir uniquement les récepteurs V-MAT Basic CBI prévus.
 
-Le navigateur conserve ses propres autorisations. L’attribution des côtés reste en mémoire pendant la session : après rechargement, choisir de nouveau les appareils. Après une perte de liaison, le bouton « Reconnecter » réutilise l’appareil déjà choisi dans la session. Aucun mouvement ne reprend automatiquement.
+L’attribution gauche/droite est conservée localement après une connexion réussie. Lors d’un rechargement, d’un retour sur la page ou d’une perte de liaison au premier plan, l’application retrouve les appareils autorisés par leur identifiant opaque (`navigator.bluetooth.getDevices`) et rétablit les connexions. Elle ne se fie jamais au nom des appareils et n’ouvre pas de sélecteur automatiquement. Les échecs radio donnent lieu à deux nouvelles tentatives espacées ; un nouveau retour sur la page permet de réessayer. Aucun mouvement ne reprend automatiquement.
+
+« Déconnecter » désactive la reconnexion automatique du côté concerné, y compris après rechargement. « Reconnecter » la réactive après une connexion réussie. Si le navigateur ne fournit pas `getDevices`, si les permissions ont été retirées ou si les données locales ont été effacées, il faut renouveler la sélection manuellement. Le mode simulation n’effectue aucune reconnexion réelle. Les tentatives sont suspendues en arrière-plan et pendant une commande.
+
+Après installation de la version 0.2.0, choisir une dernière fois les deux appareils : la version précédente n’enregistrait pas leurs identifiants. Les ouvertures suivantes réutilisent ces choix, tant que le navigateur conserve les données et les autorisations.
 
 ## Vérifier
 
@@ -75,7 +80,7 @@ Les projets Playwright couvrent un affichage ordinateur et un téléphone Androi
 
 ## Architecture
 
-`src/protocol` construit les trames ; `src/transport` fournit BLE et simulation ; `src/control` orchestre les états et les arrêts ; `src/ui` fournit les visuels ; `src/storage` conserve les réglages de lumière. Aucune dépendance de production, aucun compte, aucune télémétrie ni serveur applicatif.
+`src/protocol` construit les trames ; `src/transport` fournit BLE et simulation ; `src/control` orchestre les états, les arrêts et la reconnexion ; `src/ui` fournit les visuels ; `src/storage` conserve les réglages de lumière et l’attribution des appareils. Aucune dépendance de production, aucun compte, aucune télémétrie ni serveur applicatif.
 
 Le service worker ne conserve que l’interface et les ressources statiques. Il n’enregistre aucune action Bluetooth, ne reprend aucun mouvement et ne force pas la mise à jour d’une page ouverte. Fermer toutes les fenêtres de l’application puis la rouvrir pour appliquer une mise à jour disponible.
 
