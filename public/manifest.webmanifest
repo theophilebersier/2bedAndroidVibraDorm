@@ -1,0 +1,11 @@
+{
+  "id": "./", "name": "Dual Bed Sync", "short_name": "Bed Sync", "lang": "fr",
+  "description": "Télécommande de vos deux sommiers Vibradorm CBI",
+  "start_url": "./", "scope": "./", "display": "standalone",
+  "background_color": "#f5f2ed", "theme_color": "#244f47",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
