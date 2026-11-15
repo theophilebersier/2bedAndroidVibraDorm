@@ -1,13 +1,15 @@
-# Dual Bed Sync Android 0.3.0
+# Dual Bed Sync pour Android — 0.3.1
 
-[Télécharger l’APK signé](https://github.com/theophilebersier/2bedAndroidVibraDorm/raw/refs/heads/apk/DualBedSync.apk)
+[Télécharger l’APK signé](https://github.com/theophilebersier/2bedAndroidVibraDorm/raw/refs/heads/apk/DualBedSync.apk) · Android 7 et versions suivantes.
 
-Sur le téléphone, ouvrir le fichier téléchargé pour installer Dual Bed Sync. Autoriser les appareils à proximité et choisir une fois les deux lits. Les ouvertures suivantes tentent la reconnexion par les adresses enregistrées, sans reprendre de mouvement. Le raccourci web installé précédemment est une application distincte.
+Installer par-dessus l’application existante, sans désinstallation, pour conserver les sommiers associés. Le certificat de signature reste identique.
 
-Android 7 minimum. Le Bluetooth réel reste à tester sur le téléphone et les sommiers.
+L’éclairage est masqué par défaut. Pour le réafficher : roue dentée → Affichage → « Afficher les commandes d’éclairage ». Le choix est conservé à la fermeture.
 
-[Instructions complètes](https://github.com/theophilebersier/2bedAndroidVibraDorm/blob/6b82d6d7d752194939269f01cee80186787c9636/docs/ANDROID.md) · [Sources de cette version](https://github.com/theophilebersier/2bedAndroidVibraDorm/tree/6b82d6d7d752194939269f01cee80186787c9636)
+Première installation : autoriser le Bluetooth et choisir une fois chaque sommier. Les ouvertures suivantes reconnectent les sommiers mémorisés sans sélection ni reprise de mouvement. Une désinstallation ou un effacement des données supprime les associations.
 
-SHA-256 de l’APK : `4d258d9c0de1d0a1e1b6f48636b713745d9a93ef844612cce037764829cb7f23`.
+Maintenir les boutons pour déplacer, relâcher pour STOP. La commande combinée ne mesure pas l’alignement mécanique.
 
-Cette branche contient uniquement la distribution signée. Aucune clé privée ni donnée d’appareil n’est publiée.
+[Sources de cette version](https://github.com/theophilebersier/2bedAndroidVibraDorm/tree/43ccf7d0add33303115d7fb82ea8d24ac1fa2b4d) · [Instructions et compilation](https://github.com/theophilebersier/2bedAndroidVibraDorm/blob/main/docs/ANDROID.md)
+
+SHA-256 APK : `7c5b8677703554420aa9eb442904e8ca54619a550a7f9f543a56548ca5342b2d`.
