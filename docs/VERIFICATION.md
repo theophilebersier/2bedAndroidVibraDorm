@@ -17,12 +17,13 @@ Réalisées le 15 novembre 2026 sur Windows, avec Node.js 26.13.0 et Chrome inst
 | Débordement horizontal | Aucun dans les captures et la vérification à 320 px |
 | Installation depuis une archive propre | `npm ci` et construction réussis à partir du fichier de verrouillage |
 | Document original dans l’archive Git | Octets identiques à la source fournie |
-| GitHub Actions, Ubuntu et Node.js 24 | Validation précédente réussie en 0.1.0 ; chaque publication relance les contrôles |
-| Publication GitHub Pages | Déploiement précédent 0.1.0 réussi, réponse HTTPS 200 |
+| GitHub Actions, Ubuntu et Node.js 24 | Version 0.2.0 : installation, contrôle, construction et 30 tests navigateur réussis |
+| Publication GitHub Pages | Version 0.2.0 déployée, réponse HTTPS 200 |
+| Vérification dans Chrome de la version publique | Version, « Tout monter », simulation, éclairage, cache hors ligne et reconnexion de deux faux récepteurs après rechargement réussis ; aucune erreur JavaScript |
 
-Les sources sont publiées dans [theophilebersier/2bedAndroidVibraDorm](https://github.com/theophilebersier/2bedAndroidVibraDorm). Les exécutions actuelles sont visibles dans [GitHub Actions](https://github.com/theophilebersier/2bedAndroidVibraDorm/actions). L’exécution distante précédente [Checks du commit c79656f](https://github.com/theophilebersier/2bedAndroidVibraDorm/actions/runs/43698380292) s’est terminée avec succès : `npm ci`, `npm run check`, installation de Chromium et `npm run test:e2e`.
+Les sources sont publiées dans [theophilebersier/2bedAndroidVibraDorm](https://github.com/theophilebersier/2bedAndroidVibraDorm). L’exécution distante [Checks du commit ba4960f](https://github.com/theophilebersier/2bedAndroidVibraDorm/actions/runs/43702439175) s’est terminée avec succès : `npm ci`, `npm run check`, installation de Chromium et `npm run test:e2e`.
 
-Le [déploiement Pages du commit 0ecd9c2](https://github.com/theophilebersier/2bedAndroidVibraDorm/actions/runs/43699424674) a réussi le 15 novembre 2026, après activation de Pages et ajout de l’étape officielle de configuration. L’URL publiée est [https://theophilebersier.github.io/2bedAndroidVibraDorm/](https://theophilebersier.github.io/2bedAndroidVibraDorm/). Une vérification dans Chrome a confirmé la réponse HTTP 200, le contexte sécurisé, la simulation avec éclairage et un rechargement hors ligne sans reprise de connexion. Le service worker utilise le scope du dépôt et aucune erreur JavaScript n’a été relevée dans ce parcours.
+Le [déploiement Pages du commit ba4960f](https://github.com/theophilebersier/2bedAndroidVibraDorm/actions/runs/43702439207) a réussi le 15 novembre 2026. L’URL publiée est [https://theophilebersier.github.io/2bedAndroidVibraDorm/](https://theophilebersier.github.io/2bedAndroidVibraDorm/). Une vérification dans Chrome a confirmé la version 0.2.0, la réponse HTTP 200, le contexte sécurisé, la simulation avec éclairage et un rechargement hors ligne sans reprise de mouvement. Avec Web Bluetooth simulé dans le navigateur sur cette URL publique, les deux récepteurs ont été retrouvés après rechargement, sans nouvelle sélection et sans écriture moteur. Le service worker utilise le scope du dépôt et aucune erreur JavaScript n’a été relevée dans ces parcours.
 
 ## Comportements couverts
 
