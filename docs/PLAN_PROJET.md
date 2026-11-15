@@ -6,7 +6,7 @@ Date : 15 novembre 2026.
 
 Créer une télécommande mobile simple pour deux sommiers Vibradorm, puis préparer sa publication sur GitHub. La cible matérielle déclarée dans le cahier des charges est le V-Mat-Basic-RF-CBI-SMPS-bk-EU-RELAY-NAS, référence 0093005668.
 
-État au 15 novembre 2026 : version logicielle de test réalisée et publiée dans `theophilebersier/2bedAndroidVibraDorm`, avec protocole figé, pilote Web Bluetooth, simulation, interface et tests. Les contrôles GitHub Actions ont réussi. La validation physique n’a pas été réalisée. En attendant l’accès aux lits, les étapes logicielles ont été construites avec des récepteurs simulés ; cela ne valide pas les critères matériels des étapes 1 à 5.
+État au 15 novembre 2026 : version logicielle de test réalisée, publiée dans `theophilebersier/2bedAndroidVibraDorm` et hébergée en HTTPS sur GitHub Pages, avec protocole figé, pilote Web Bluetooth, simulation, interface et tests. Les contrôles GitHub Actions et la vérification de la version publique ont réussi. La validation physique n’a pas été réalisée. En attendant l’accès aux lits, les étapes logicielles ont été construites avec des récepteurs simulés ; cela ne valide pas les critères matériels des étapes 1 à 5.
 
 Les prescriptions du document original sont des exigences à examiner. Les affirmations sur les connexions simultanées, les caractéristiques électriques et la synchronisation mécanique ne constituent pas des résultats d’essais.
 
@@ -137,4 +137,4 @@ Si la PWA est retenue, préparer un déploiement GitHub Pages avec les chemins a
 
 ## 10. Prochaine action
 
-Publier une version de test sur une origine HTTPS choisie, puis réaliser les essais sur le téléphone et les deux lits selon TESTS_MATERIEL.md. Confirmer le profil de chaque récepteur et le comportement d’arrêt avant de qualifier le contrôle combiné.
+Réaliser les essais sur le téléphone et les deux lits depuis l’URL GitHub Pages, selon TESTS_MATERIEL.md. Confirmer le profil de chaque récepteur et le comportement d’arrêt avant de qualifier le contrôle combiné.

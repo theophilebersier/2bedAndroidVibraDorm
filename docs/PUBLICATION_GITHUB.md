@@ -2,6 +2,8 @@
 
 Le code est destiné au dépôt public [theophilebersier/2bedAndroidVibraDorm](https://github.com/theophilebersier/2bedAndroidVibraDorm), indiqué par le propriétaire. Le déploiement Pages est une opération distincte de la publication des sources.
 
+Application publiée : **[Dual Bed Sync](https://theophilebersier.github.io/2bedAndroidVibraDorm/)**. Le [déploiement du 15 novembre 2026](https://github.com/theophilebersier/2bedAndroidVibraDorm/actions/runs/43699424674) et la vérification de la version publique dans Chrome ont réussi.
+
 ## Choisir le dépôt
 
 Dépôt choisi : `theophilebersier/2bedAndroidVibraDorm`, public. La licence du code original reste à définir ; le projet porte clairement la mention « version de test, matériel non validé ».

@@ -6,6 +6,8 @@ Télécommande web pour deux sommiers Vibradorm V-MAT Basic CBI : commande indé
 
 Dépôt : [theophilebersier/2bedAndroidVibraDorm](https://github.com/theophilebersier/2bedAndroidVibraDorm).
 
+**[Ouvrir l’application en HTTPS](https://theophilebersier.github.io/2bedAndroidVibraDorm/)** — dans Chrome sur Android. Commencer par « Essayer sans connecter de lit », puis suivre la procédure matérielle avant les commandes sur les sommiers.
+
 ![Interface ordinateur, en simulation](docs/preview-desktop.png)
 
 ## Fonctions
